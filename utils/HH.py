@@ -1,9 +1,10 @@
-from neuron.units import mV, ms
+
 import matplotlib.pyplot as plt
 import numpy as np
 import pandas as pd
 from neuron import h
 h.load_file("stdrun.hoc")
+from neuron.units import mV, ms
 
 import Stimuli
 
@@ -34,6 +35,12 @@ class HH:
         self.nc_self = h.NetCon(self.axon(0.5)._ref_v, None, sec=self.axon)
         self.nc_self.threshold = 0
         self.nc_self.record(self.spike_times)
+
+        # initial conditions
+        self.v0 = None
+        self.m0 = None
+        self.h0 = None
+        self.n0 = None
 
     def add_custom_stimulus(self, stimuli):
         # stimuli: PoissonStim class object from Stimuli.py
@@ -77,7 +84,8 @@ class HH:
             seg.hh.n = self.n0
 
     def run_simulation(self, sim_length):
-        fih = h.FInitializeHandler(self.do_sim_init)
+        if self.v0:
+            fih = h.FInitializeHandler(self.do_sim_init)
         h.finitialize(-65)
         h.continuerun(sim_length * ms)
 

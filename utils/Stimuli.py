@@ -74,92 +74,95 @@ class PoissonStimSet:
 class ExperimentalStimParams:
     # stimuli set used for the point cell experiments
     def __init__(self):
-        # base
-        self.ex_base = PoissonStim(
-            'ex_base', 'ex_base',
-            interval=5,
-            rev_potential=0,
-            weight=0.0002,
-            tau=2,
-            seed='na'
-        )
-        self.in_base = PoissonStim(
-            'in_base', 'in_base',
-            interval=15,
-            rev_potential=-80,
-            weight=0.0005,
-            tau=6,
-            seed='na'
-        )
-
-        # lw
-        self.ex_lw = PoissonStim(
-            'ex_lw', 'ex_lw',
-            interval=5,
-            rev_potential=0,
-            weight=0.00015,
-            tau=2,
-            seed='na'
-        )
-        self.in_lw = PoissonStim(
-            'in_lw', 'in_lw',
-            interval=15,
-            rev_potential=-80,
-            weight=0.0002,
-            tau=6,
-            seed='na'
-        )
-
-        # lt
-        self.ex_lt = PoissonStim(
-            'ex_lt', 'ex_lt',
-            interval=5,
-            rev_potential=0,
-            weight=0.0002,
-            tau=10,
-            seed='na'
-        )
-        self.in_lt = PoissonStim(
-            'in_lt', 'in_lt',
-            interval=15,
-            rev_potential=-80,
-            weight=0.0005,
-            tau=40,
-            seed='na'
-        )
-
-        # lwlt
-        self.ex_lwlt = PoissonStim(
-            'ex_lwlt', 'ex_lwlt',
-            interval=5,
-            rev_potential=0,
-            weight=0.00015,
-            tau=10,
-            seed='na'
-        )
-        self.in_lwlt = PoissonStim(
-            'in_lwlt', 'in_lwlt',
-            interval=15,
-            rev_potential=-80,
-            weight=0.0002,
-            tau=40,
-            seed='na'
-        )
-
-        # burst
-        self.ex_burst = PoissonStim(
-            'ex_burst', 'ex_burst',
-            interval=5,
-            rev_potential=0,
-            weight=0.0001,
-            tau=40,
-            seed='na'
-        )
-        self.in_burst = PoissonStim(
-            'in_burst', 'in_burst',
-            interval=15,
-            rev_potential=-80,
-            weight=0.0005,
-            tau=20,
-            seed='na'
-        )
+        self.stim_scaffold = {
+            'base': {
+                'ex': PoissonStim(
+                    'ex_base', 'ex_base',
+                    interval=5,
+                    rev_potential=0,
+                    weight=0.0002,
+                    tau=2,
+                    seed='na'
+                ),
+                'in': PoissonStim(
+                    'in_base', 'in_base',
+                    interval=15,
+                    rev_potential=-80,
+                    weight=0.0005,
+                    tau=6,
+                    seed='na'
+                )
+            },
+            'lw': {
+                'ex': PoissonStim(
+                    'ex_lw', 'ex_lw',
+                    interval=5,
+                    rev_potential=0,
+                    weight=0.00015,
+                    tau=2,
+                    seed='na'
+                ),
+                'in': PoissonStim(
+                    'in_lw', 'in_lw',
+                    interval=15,
+                    rev_potential=-80,
+                    weight=0.0002,
+                    tau=6,
+                    seed='na'
+                )
+            },
+            'lt': {
+                'ex': PoissonStim(
+                    'ex_lt', 'ex_lt',
+                    interval=5,
+                    rev_potential=0,
+                    weight=0.0002,
+                    tau=10,
+                    seed='na'
+                ),
+                'in': PoissonStim(
+                    'in_lt', 'in_lt',
+                    interval=15,
+                    rev_potential=-80,
+                    weight=0.0005,
+                    tau=40,
+                    seed='na'
+                )
+            },
+            'lwlt': {
+                'ex': PoissonStim(
+                    'ex_lwlt', 'ex_lwlt',
+                    interval=5,
+                    rev_potential=0,
+                    weight=0.00015,
+                    tau=10,
+                    seed='na'
+                ),
+                'in': PoissonStim(
+                    'in_lwlt', 'in_lwlt',
+                    interval=15,
+                    rev_potential=-80,
+                    weight=0.0002,
+                    tau=40,
+                    seed='na'
+                )
+            },
+            'burst': {
+                'ex': PoissonStim(
+                    'ex_burst', 'ex_burst',
+                    interval=5,
+                    rev_potential=0,
+                    weight=0.0001,
+                    tau=40,
+                    seed='na'
+                ),
+                'in': PoissonStim(
+                    'in_burst', 'in_burst',
+                    interval=15,
+                    rev_potential=-80,
+                    weight=0.0005,
+                    tau=20,
+                    seed='na'
+                )
+            }
+        }
