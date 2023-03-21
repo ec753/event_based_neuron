@@ -1,4 +1,5 @@
 import random
+import numpy as np
 
 def poisson_process_n(interval, n):
     interspikes = [random.expovariate(1. / interval) for _ in range(n)]
@@ -31,7 +32,7 @@ def excitatory_and_inhibitory_n(ex_interval, in_interval, n):
     return stimuli
 
 class PoissonStim:
-    def __init__(self, name, stim_id, interval, rev_potential, weight, tau, seed, stim_times=None):
+    def __init__(self, name=None, stim_id=None, interval=None, rev_potential=None, weight=None, tau=None, seed=None, stim_times=None):
         self.name = name
         self.stim_id = stim_id
         self.interval = interval
@@ -45,8 +46,9 @@ class PoissonStimSet:
     # used morphologically detailed neuron models with multiple sources of input stimuli
     def __init__(self, num_stims, all_input_segments, interval, duration, rev_potential, weight, tau):
         stimuli_seg_inds = np.random.choice(np.arange(0, len(all_input_segments)), num_stims, replace=False)
-        stimuli_times = [poisson_process_duration(interval, duration)]
-        self.stimuli = [Stimuli.PoissonStim(
+        stimuli_times = [poisson_process_duration(interval, duration) for x in range(num_stims)]
+        self.duration = duration
+        self.stimuli = [PoissonStim(
             name='ex_' + str(seg_ind),
             stim_id=seg_ind,
             interval=interval,
@@ -70,6 +72,7 @@ class PoissonStimSet:
         }
         with open(file_name, "w") as fout:
             json.dump(stimuli_2_file, fout)
+
 
 class ExperimentalStimParams:
     # stimuli set used for the point cell experiments

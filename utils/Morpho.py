@@ -25,7 +25,6 @@ class Pyramidal:
                 self.all_input_segments.extend([seg for seg in part.allseg()])
         # storing input mechanisms
         self.syns = []
-        self.net_stims = []
         self.netcons = []
         self.stims = []
         # recording
@@ -62,7 +61,7 @@ class Pyramidal:
 
         nc = h.NetCon(vec_stim, syn)
         nc.weight[0] = 1  # stimuli.weight (weight here is arbitrary stims are communicated as events regardless of weight
-        nc.delay = stimuli.delay
+        nc.delay = 0
 
         self.syns.append(syn)
         self.netcons.append(nc)
@@ -70,7 +69,7 @@ class Pyramidal:
         netstims = [h.NetStim() for stim_time in stimuli.stim_times]
         for netstim, event_time in zip(netstims, stimuli.stim_times):
             netstim.number = 1
-            netstim.start = stim_time
+            netstim.start = event_time
             netcon = h.NetCon(netstim, syn)
             netcon.weight[0] = stimuli.weight
             netcon.delay = 0 * ms
