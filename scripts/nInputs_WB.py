@@ -1,6 +1,6 @@
 import sys
 sys.path.insert(1, "./utils/")
-import Stimuli, HH
+import Stimuli, Morpho
 
 import ctypes
 import time
@@ -9,106 +9,42 @@ import numpy as np
 import pandas as pd
 from neuron import nrn_dll_sym, h
 from neuron.units import ms, mV
+
+import WB
 h.load_file("stdrun.hoc")
 import multiprocessing
 
 #################### ARGUMENTS ###########################
 parser = argparse.ArgumentParser(description='Args')
-parser.add_argument('outdir', type=str, help='directory to dump the results to')
-parser.add_argument('exp_name', type=str, help='name of the experiment')
-parser.add_argument('ninputs', type=int, help='number of inputs to include')
-parser.add_argument('duration', type=float, help='duration of each simulation')
-parser.add_argument('history', type=str, help='name of the history to use from ["base","lw","lt","lwlt","burst"]')
-parser.add_argument('ospike', type=str, help='"ospike" if output spike is included')
-parser.add_argument('excitatory_interval', type=float, help='expected interval of poisson generated excitatory stimuli at each excitatory synapse')
-parser.add_argument('excitatory_rev_potential', type=float, help='')
-parser.add_argument('excitatory_weight', type=float, help='')
-parser.add_argument('excitatory_tau', type=float, help='')
-parser.add_argument('inhibitory_interval', type=float, help='')
-parser.add_argument('inhibitory_rev_potential', type=float, help='')
-parser.add_argument('inhibitory_weight', type=float, help='')
-parser.add_argument('inhibitory_tau', type=float, help='')
+parser.add_argument('-outdir', type=str, help='directory to dump the results to')
+parser.add_argument('-exp_name', type=str, help='name of the experiment')
+parser.add_argument('-ninputs', type=int, help='number of inputs to include')
+parser.add_argument('-duration', type=float, help='duration of each simulation')
+parser.add_argument('-ospike', type=str, help='"ospike" if output spike is included')
+parser.add_argument('-ei', type=float, help='expected interval of poisson generated excitatory stimuli at each excitatory synapse')
+parser.add_argument('-erp', type=float, help='')
+parser.add_argument('-ew', type=float, help='')
+parser.add_argument('-et', type=float, help='')
+parser.add_argument('-ii', type=float, help='')
+parser.add_argument('-irp', type=float, help='')
+parser.add_argument('-iw', type=float, help='')
+parser.add_argument('-it', type=float, help='')
 args = parser.parse_args()
 ##########################################################
 # Median and spike histories are generated from simulation in HH_model_specs.ipynb
 # currently, they are hard-coded here, not ideal, but should be imported from a file perhaps
 # the specific history used is chosen by args.history
-median_histories = {
-    'base':
-        {
-            'v': -65.4783123433392,
-            'm': 0.05010827491974185,
-            'n': 0.3322977316054023,
-            'h': 0.5662937503578902
-        },
-    'lw':
-        {
-            'v': -65.05216588491975,
-            'm': 0.053287759884193084,
-            'n': 0.33057516280125593,
-            'h': 0.5677966607940762
-        },
-    'lt':
-        {
-            'v': -65.33224022733997,
-            'm': 0.05173948745008535,
-            'n': 0.3382151028430245,
-            'h': 0.5478173816286583},
-    'burst':
-        {
-            'v': -60.34919267323213,
-            'm': 0.0930119959051144,
-            'n': 0.4159070018061663,
-            'h': 0.3913119513056261
-         },
-    'lwlt':
-        {
-            'v': -64.26695731748968,
-            'm': 0.058854810796640095,
-            'n': 0.35634157654504517,
-            'h': 0.511360555565485
-        }
- }
-spiking_histories = {
-    'base':
-        {
-            'v': 3.0728793710303774,
-            'm': 0.5934216960216184,
-            'n': 0.43551634759472274,
-            'h': 0.3925285721877823
-        },
-    'lt':
-        {
-            'v': 2.9262023875042393,
-            'm': 0.612655629275048,
-            'n': 0.4518281580523386,
-            'h': 0.3574974549531508
-        },
-    'lw':
-        {
-            'v': 2.9656868241412635,
-            'm': 0.6016585751468678,
-            'n': 0.4446174313370172,
-            'h': 0.
-        },
-    'burst':
-        {
-            'v': 1.9363868459288511,
-            'm': 0.6771870083900837,
-            'n': 0.5166378471602187,
-            'h': 0.24614621227577474
-        },
-    'lwlt':
-        {
-            'v': 2.813929446231798,
-            'm': 0.6147894362834673,
-            'n': 0.458558594809478,
-            'h': 0.3434120512614686
-        }
-}
-##########################################################
 
-def hh_n_inputs(
+median_history = {
+    'v': -62.63896424137329, 'm': 0.10259466539537955, 'h': 0.7298860063700434
+}
+spiking_history = {
+    'v': 0.8188187532617182, 'm': 0.313214607214477, 'h': 0.22584291363781567
+}
+
+# only difference with hh_n_inputs in nInputs.py is in the spike generation
+# we use WB.run_event_sim instead of HH.run_event_sim
+def wb_n_inputs(
         last_spike,
         e0, e1, e2, e3, e4, e5, e6, e7, e8, e9, e10, e11, e12, e13, e14, e15, e16, e17, e18, e19, e20, e21, e22, e23,
         e24, e25, e26, e27, e28, e29, e30, e31, e32, e33, e34, e35, e36, e37, e38, e39,
@@ -165,9 +101,9 @@ def hh_n_inputs(
 
     if (events[0][0] == 'o') and (args.ospike == 'ospike'):
         # return the spiking history
-        history = spiking_histories[args.history]
+        history = spiking_history
     elif (events[0][0] == 'e') or (events[0][0] == 'i'):
-        history = median_histories[args.history]
+        history = median_history
     else:
         raise Exception('PROBLEM in the event type')
 
@@ -181,12 +117,12 @@ def hh_n_inputs(
     extra_duration = 20 # refers to the extra simulation duration after the last input event
 
     spikes = pool.starmap(
-        HH.run_event_sim,
+        WB.run_event_sim,
         [
             [
                 events, history,
-                args.excitatory_weight, args.excitatory_tau, args.excitatory_rev_potential,
-                args.inhibitory_weight, args.inhibitory_tau, args.inhibitory_rev_potential,
+                args.ew, args.et, args.erp,
+                args.iw, args.it, args.irp,
                 extra_duration, False
             ]
         ]
@@ -201,10 +137,11 @@ def hh_n_inputs(
     else:
         return np.inf
 
+
 double_ptr = ctypes.POINTER(ctypes.c_double)
 on_event_proto = ctypes.CFUNCTYPE(*([ctypes.c_double] * 82)) # 1 for return, 1 for last spike, 40 for each stim type
 
-on_event_c = on_event_proto(hh_n_inputs)
+on_event_c = on_event_proto(wb_n_inputs)
 on_event_c_ptr = ctypes.cast(on_event_c, double_ptr)
 
 nrn_hocobj_ptr = nrn_dll_sym("nrn_hocobj_ptr")
@@ -212,19 +149,19 @@ nrn_hocobj_ptr.restype = ctypes.py_object
 event_callback_ptr = nrn_hocobj_ptr(ctypes.cast(on_event_c_ptr, double_ptr))
 
 if __name__ == '__main__':
-    #print(f'outdir:{args.outdir}')
+    print(f'outdir:{args.outdir}')
     print(f'exp_name:{args.exp_name}')
-    #print(f'ninputs:{args.ninputs}')
-    #print(f'duration:{args.duration}')
-    #print(f'ospike:{args.ospike}')
-    #print(f'ex_i:{args.excitatory_interval}')
-    #print(f'ex_w:{args.excitatory_weight}')
-    #print(f'ex_t:{args.excitatory_tau}')
-    #print(f'ex_rp:{args.excitatory_rev_potential}')
-    #print(f'in_i:{args.inhibitory_interval}')
-    #print(f'in_w:{args.inhibitory_weight}')
-    #print(f'in_t:{args.inhibitory_tau}')
-    #print(f'in_rp:{args.inhibitory_rev_potential}')
+    print(f'ninputs:{args.ninputs}')
+    print(f'duration:{args.duration}')
+    print(f'ospike:{args.ospike}')
+    print(f'ex_i:{args.ei}')
+    print(f'ex_w:{args.ew}')
+    print(f'ex_t:{args.et}')
+    print(f'ex_rp:{args.erp}')
+    print(f'in_i:{args.ii}')
+    print(f'in_w:{args.iw}')
+    print(f'in_t:{args.it}')
+    print(f'in_rp:{args.irp}')
 
 
     pool = multiprocessing.Pool(1)
@@ -241,14 +178,14 @@ if __name__ == '__main__':
     # excitatory stimuli
     estim = h.NetStim()
     estim.noise = True
-    estim.interval = args.excitatory_interval * ms
+    estim.interval = args.ei * ms
     estim.number = 10_000_000 # arbitrary
     estim.start = 0 * ms
     estim.seed(11)
     # connect to cellNST
     e_nc_nst = h.NetCon(estim, cellNST)
     e_nc_nst.delay = 0
-    e_nc_nst.weight[0] = args.excitatory_weight
+    e_nc_nst.weight[0] = args.ew
 
     e_stims = h.Vector()
     e_nc_nst.record(e_stims)
@@ -256,14 +193,14 @@ if __name__ == '__main__':
     # inhibitory stimulus
     istim = h.NetStim()
     istim.noise = True
-    istim.interval = args.inhibitory_interval * ms
+    istim.interval = args.ii * ms
     istim.number = 10_000_000
     istim.start = 0 * ms
     istim.seed(42)
     # connect to cellNST
     i_nc_nst = h.NetCon(istim, cellNST)
     i_nc_nst.delay = 0
-    i_nc_nst.weight[0] = -args.inhibitory_weight
+    i_nc_nst.weight[0] = -args.iw
     # i_nc_nst.weight is negative because the h.nInputs40 cell distinguishes excitatory from inhibitory
     # stimuli by the sign of their weight (the magnitude of the weight is arbitrary)
 
@@ -295,4 +232,3 @@ if __name__ == '__main__':
     with open(f'{args.outdir}/{args.exp_name}_{args.ninputs}_spikes.txt', 'w') as f:
         for item in cellNST_spikes:
             f.write("%s\n" % item)
-

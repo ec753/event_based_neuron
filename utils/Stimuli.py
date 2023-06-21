@@ -167,5 +167,23 @@ class ExperimentalStimParams:
                     tau=20,
                     seed='na'
                 )
+            },
+            'wb': {
+                'ex': PoissonStim(
+                    'ex_wb', 'ex_wb',
+                    interval=5,
+                    rev_potential=0,
+                    weight=0.00003,
+                    tau=2,
+                    seed='na'
+                ),
+                'in': PoissonStim(
+                    'in_wb', 'in_wb',
+                    interval=15,
+                    rev_potential=-80,
+                    weight=0.00005,
+                    tau=6,
+                    seed='na'
+                )
             }
         }

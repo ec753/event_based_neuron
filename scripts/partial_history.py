@@ -8,13 +8,6 @@ from neuron import h
 h.load_file("stdrun.hoc")
 from neuron.units import mV, ms
 
-########## HYPERPARAMETERS ##########
-parser = argparse.ArgumentParser(description='Args')
-parser.add_argument('n', type=int, help='directory to dump the results to')
-args = parser.parse_args()
-n = args.n
-
-
 data_dir = './data/partial_history/'
 num_input_patterns_per_n = 1000
 num_histories = 1000
