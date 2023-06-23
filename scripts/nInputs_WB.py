@@ -1,6 +1,6 @@
 import sys
-sys.path.insert(1, "./utils/")
-import Stimuli, Morpho
+sys.path.insert(1, "../utils/")
+import Stimuli, WB
 
 import ctypes
 import time
@@ -10,7 +10,6 @@ import pandas as pd
 from neuron import nrn_dll_sym, h
 from neuron.units import ms, mV
 
-import WB
 h.load_file("stdrun.hoc")
 import multiprocessing
 
@@ -149,6 +148,7 @@ nrn_hocobj_ptr.restype = ctypes.py_object
 event_callback_ptr = nrn_hocobj_ptr(ctypes.cast(on_event_c_ptr, double_ptr))
 
 if __name__ == '__main__':
+    '''
     print(f'outdir:{args.outdir}')
     print(f'exp_name:{args.exp_name}')
     print(f'ninputs:{args.ninputs}')
@@ -162,6 +162,7 @@ if __name__ == '__main__':
     print(f'in_w:{args.iw}')
     print(f'in_t:{args.it}')
     print(f'in_rp:{args.irp}')
+    '''
 
 
     pool = multiprocessing.Pool(1)

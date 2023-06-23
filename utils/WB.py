@@ -217,10 +217,9 @@ def run_event_sim(events, history, e_w=0.00003, e_t=2, e_rp=0, i_w=0.00005, i_t=
     if robust:
         return {
             't': list(sim._t),
-            'h': list(sim._h),
-            'm': list(sim._m),
             'v': list(sim._v),
-            'n': list(sim._n)
+            'm': list(sim._m_kdr),
+            'h': list(sim._h_naf),
         }, spikes
     else:
         return spikes

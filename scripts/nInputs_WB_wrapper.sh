@@ -11,7 +11,7 @@ it=6
 for n in {2..30..1}
 do
   echo ${n}
-  python ./scripts/nInputs_WB.py -outdir ${out_dir} -exp_name ${exp_name}_${n}_ -ninputs $n -duration ${duration} -ospike ospike -ei 5 -erp 0 -ew $ew -et $et -ii 15 -irp -80 -iw $iw -it $it&
+  python nInputs_WB.py -outdir ${out_dir} -exp_name ${exp_name}_${n}_ -ninputs $n -duration ${duration} -ospike ospike -ei 5 -erp 0 -ew $ew -et $et -ii 15 -irp -80 -iw $iw -it $it&
 done
 
 wait
