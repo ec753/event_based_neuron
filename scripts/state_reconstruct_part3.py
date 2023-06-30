@@ -1,5 +1,6 @@
 import numpy as np
 import matplotlib.pyplot as plt
+import time
 data_dir = './data/state_reconstruct/reconstruction_data/'
 
 # part 3 of the state reconstruction experiment,
@@ -11,8 +12,13 @@ def calc_errors(stim_type):
     reconstruct_state_vars = np.load(f'{data_dir}reconstruct_state_vars_{stim_type}.npy')
 
     # remove the t
-    origin_state_vars = origin_state_vars[:, 1:, :]
-    reconstruct_state_vars = reconstruct_state_vars[:, 1:, :]
+    #origin_state_vars = origin_state_vars[:, 1:, :]
+    #reconstruct_state_vars = reconstruct_state_vars[:, 1:, :]
+
+    # only consider v
+    origin_state_vars = origin_state_vars[:, 1, :]
+    reconstruct_state_vars = reconstruct_state_vars[:, 1, :]
+
     print(f'origin state vars: {origin_state_vars.shape}')
     print(f'reconstruct state vars: {reconstruct_state_vars.shape}')
 
@@ -20,7 +26,7 @@ def calc_errors(stim_type):
     print('calculating errors')
     state_var_errors = origin_state_vars - reconstruct_state_vars
 
-    # garbage collect the stuff we don't need
+    # garbage collect the stuff we don't need, not exactly sure how python usually deals with this
     origin_state_vars = None
     reconstruct_state_vars = None
 
@@ -40,5 +46,6 @@ def calc_errors(stim_type):
 #calc_errors('base')
 #calc_errors('lw')
 #calc_errors('lt')
-calc_errors('lwlt')
+#calc_errors('lwlt')
 #calc_errors('burst')
+calc_errors('wb')

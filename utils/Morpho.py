@@ -8,9 +8,10 @@ h.load_file("stdrun.hoc")
 h.load_file("stdlib.hoc")
 h.load_file("import3d.hoc")
 
+
 class Pyramidal:
-    def __init__(self):
-        self.load_morphology()
+    def __init__(self, path2morpho, record_spiking_histories=False):
+        self.load_morphology(path2morpho)
         # do discretization, ion channels, etc
         for sec in self.all:
             sec.nseg = int(1 + 2 * (sec.L // 40))
@@ -22,9 +23,13 @@ class Pyramidal:
         for morph in [self.apic, self.dend]:
             for part in morph:
                 # self.all_input_segments.append(part)
-                self.all_input_segments.extend([seg for seg in part.allseg()])
+                self.all_input_segments.extend([seg for seg in part])
+        self._clear_cell(record_spiking_histories)
+
+    def _clear_cell(self, record_spiking_histories):
         # storing input mechanisms
         self.syns = []
+        self.net_stims = []
         self.netcons = []
         self.stims = []
         # recording
@@ -32,22 +37,62 @@ class Pyramidal:
         self.v_soma = h.Vector().record(self.soma[0](0.5)._ref_v)
         self.v_axon = h.Vector().record(self.axon[0](0.5)._ref_v)
         self._t = h.Vector().record(h._ref_t)
+
+        self.v = [h.Vector().record(seg._ref_v) for sec in self.all for seg in sec]
+        self.hh_secs = [sec for sec in self.all if 'hh' in sec.psection()['density_mechs']]
+
+        '''
+        self.m = [h.Vector().record(seg.hh._ref_m) for sec in hh_secs for seg in sec]
+        self.h = [h.Vector().record(seg.hh._ref_h) for sec in hh_secs for seg in sec]
+        self.n = [h.Vector().record(seg.hh._ref_n) for sec in hh_secs for seg in sec]
+        '''
+
         self.spike_detector = h.NetCon(self.axon[0](0.5)._ref_v, None, sec=self.axon[0])
         self.spike_times = h.Vector()
         self.spike_detector.record(self.spike_times)
 
+        if record_spiking_histories:
+            self.spiking_histories = []
+            self.spike_detector2 = h.NetCon(self.axon[0](0.5)._ref_v, None, sec=self.axon[0])
+            self.spike_detector2.record(self.save)
+
     def __repr__(self):
         return "pyr"
 
-    def load_morphology(self):
+    def get_state(self):
+        return {
+            "v": [seg.v for sec in self.all for seg in sec],
+            "m": [seg.hh.m for sec in self.hh_secs for seg in sec],
+            "h": [seg.hh.h for sec in self.hh_secs for seg in sec],
+            "n": [seg.hh.n for sec in self.hh_secs for seg in sec]}
+
+    def save(self):
+        self.spiking_histories.append(self.get_state())
+
+    def set_initialize_state(self, state):
+        self._initial_state = state
+        self.fih = h.FInitializeHandler(self._do_initial)
+
+    def _do_initial(self):
+        # state: state dict from self.get_state()
+        all_segs = [seg for sec in self.all for seg in sec]
+        hh_segs = [seg for sec in self.hh_secs for seg in sec]
+        for seg, v in zip(all_segs, self._initial_state["v"]):
+            seg.v = v
+        for seg, m, h, n in zip(hh_segs, self._initial_state["m"], self._initial_state["h"], self._initial_state["n"]):
+            seg.hh.m = m
+            seg.hh.n = n
+            seg.hh.h = h
+
+    def load_morphology(self, path2morph):
         cell = h.Import3d_SWC_read()
-        cell.input("./resources/neuron_nmo/amaral/CNG version/c91662.CNG.swc")
+        cell.input(path2morph)
         i3d = h.Import3d_GUI(cell, False)
         i3d.instantiate(self)
 
     def connect_input(self, stimuli, seg):
         '''
-        :param stimuli: PoissonStim class object from Stimuli.py
+        :param stimuli: Poisson_Times class object
         :param seg: NEURON simulation segment
         :return:
         '''
@@ -55,19 +100,19 @@ class Pyramidal:
         syn.tau = stimuli.tau
         syn.e = stimuli.rev_potential
 
-        vec_stim_times = h.Vector(stimuli.stim_times)
+        vec_stim_times = h.Vector(stimuli.event_times)
         vec_stim = h.VecStim()
         vec_stim.play(vec_stim_times)
 
         nc = h.NetCon(vec_stim, syn)
-        nc.weight[0] = 1  # stimuli.weight (weight here is arbitrary stims are communicated as events regardless of weight
-        nc.delay = 0
+        nc.weight[0] = 1  # stimuli.weight
+        nc.delay = stimuli.delay
 
         self.syns.append(syn)
         self.netcons.append(nc)
 
-        netstims = [h.NetStim() for stim_time in stimuli.stim_times]
-        for netstim, event_time in zip(netstims, stimuli.stim_times):
+        netstims = [h.NetStim() for stim_time in stimuli.event_times]
+        for netstim, event_time in zip(netstims, stimuli.event_times):
             netstim.number = 1
             netstim.start = event_time
             netcon = h.NetCon(netstim, syn)
@@ -77,6 +122,76 @@ class Pyramidal:
             self.netcons.append(netcon)
         self.stims.extend(netstims)
 
+    def load_stimuli_from_file(self, stimuli_file):
+        with open(stimuli_file, 'r') as fin:
+            stimuli_json = json.load(fin)
+        for seg_ind in stimuli_json:
+            stimuli = Poisson_Times(
+                stimuli_json[seg_ind]['stim_type'],
+                stimuli_json[seg_ind]['tau'],
+                stimuli_json[seg_ind]['interval'],
+                stimuli_json[seg_ind]['weight'],
+                stimuli_json[seg_ind]['rev_potential'],
+                event_times=stimuli_json[seg_ind]['event_times']
+            )
+            self.connect_input(stimuli, self.all_input_segments[int(seg_ind)])
+
+
+def event_type2color(event_type):
+    if event_type == 'e':
+        return 'red'
+    elif event_type == 'i':
+        return 'blue'
+    elif event_type == 'o':
+        return 'green'
+    else:
+        return 'magenta'
+
+
+def event_type2color(event_type):
+    if event_type == 'e':
+        return 'red'
+    elif event_type == 'i':
+        return 'blue'
+    elif event_type == 'o':
+        return 'green'
+    else:
+        return 'magenta'
+
+
+class Event:
+    def __init__(self, _id, t, tau, rev_potential, seg_ind, weight):
+        self._id = _id
+        self.t = t
+        self.tau = tau
+        self.rev_potential = rev_potential
+        self.seg_ind = seg_ind
+        self.weight = weight
+
+    def __lt__(self, other):
+        return self.t < other.t
+
+    def __repr__(self):
+        return str(self._id) + str(self.t)
+
+    def deliver(self):
+        # print(self)
+        return
+
+
+def generate_event_queue(stimuli):
+    '''
+    :param stimuli: stimuli generated from poisson_times_from_stim_params
+    :param max_time:
+    :return:
+    '''
+    pq = queue.PriorityQueue()
+    for seg_ind in stimuli:
+        for t in stimuli[seg_ind].event_times:
+            pq.put(Event(
+                'stim', t, stimuli[seg_ind].tau, stimuli[seg_ind].rev_potential, seg_ind, stimuli[seg_ind].weight)
+            )
+    return pq
 def event_sim(events):
     '''
     # used for simulating a morpho cell, detatched from other simulations, for n inputs

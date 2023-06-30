@@ -1,7 +1,6 @@
 import sys
 import json
 import numpy as np
-import matplotlib.pyplot as plt
 sys.path.insert(1, "../utils/")
 import HH, Stimuli
 from neuron import h
@@ -13,12 +12,11 @@ import time
 data_dir = '../data/partial_history/'
 num_input_patterns_per_n = 1000
 num_histories = 1000
-#ns = [n for n in range(3,31)]
-ns = [n for n in range(31,51)]
 
 excitatory_interval = 5
 inhibitory_interval = 15
 
+ns = [n for n in range(31,51)]
 stim_types = ['base','lw','lt','lwlt','burst']
 ########## STIMULI ##########
 print('generating stimuli')

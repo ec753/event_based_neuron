@@ -15,7 +15,7 @@ e_w=0.0002
 e_t=2
 i_w=0.0005
 i_t=6
-for n in {2..30..1}
+for n in {31..50..1}
 do
   python ./scripts/nInputs.py ${out_dir} ${exp_name}_${n}_ $n ${duration} ${history} ${ospike} $e_i $e_rp $e_w $e_t $i_i $i_rp $i_w $i_t &
 done
@@ -26,7 +26,7 @@ e_w=0.00015
 e_t=2
 i_w=0.0002
 i_t=6
-for n in {2..30..1}
+for n in {31..50..1}
 do
   python ./scripts/nInputs.py ${out_dir} ${exp_name}_${n}_ $n ${duration} ${history} ${ospike} $e_i $e_rp $e_w $e_t $i_i $i_rp $i_w $i_t &
 done
@@ -37,7 +37,7 @@ e_w=0.0002
 e_t=10
 i_w=0.0005
 i_t=40
-for n in {2..30..1}
+for n in {31..50..1}
 do
   python ./scripts/nInputs.py ${out_dir} ${exp_name}_${n}_ $n ${duration} ${history} ${ospike} $e_i $e_rp $e_w $e_t $i_i $i_rp $i_w $i_t &
 done
@@ -48,7 +48,7 @@ e_w=0.00015
 e_t=10
 i_w=0.0002
 i_t=40
-for n in {2..30..1}
+for n in {31..50..1}
 do
   python ./scripts/nInputs.py ${out_dir} ${exp_name}_${n}_ $n ${duration} ${history} ${ospike} $e_i $e_rp $e_w $e_t $i_i $i_rp $i_w $i_t &
 done
@@ -59,7 +59,7 @@ e_w=0.0001
 e_t=40
 i_w=0.0005
 i_t=20
-for n in {2..30..1}
+for n in {31..50..1}
 do
   python ./scripts/nInputs.py ${out_dir} ${exp_name}_${n}_ $n ${duration} ${history} ${ospike} $e_i $e_rp $e_w $e_t $i_i $i_rp $i_w $i_t &
 done

@@ -19,7 +19,7 @@ data_dir = '../data/partial_history_WB/'
 num_input_patterns_per_n = 1000
 num_histories = 1000
 #ns = [n for n in range(3,31)]
-ns = [n for n in range(31,51)]
+ns = [n for n in range(42,51)]
 
 excitatory_interval = 5
 inhibitory_interval = 15

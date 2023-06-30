@@ -74,6 +74,84 @@ class PoissonStimSet:
             json.dump(stimuli_2_file, fout)
 
 
+class Poisson_Times:
+    # used for the morphologically detailed cell
+    def __init__(self, _id, tau, interval, weight, rev_potential, duration=10000, number=99999999,
+                 delay=0, start=0):
+        '''
+        :param _id:
+        :param event_times: instead of auto generating, provide a list of event_times
+        :param max_time: maximum time (simulation duration)
+        :param number: maximum number of stimuli (typically inconsequential if max_time is reasonable)
+        '''
+
+        self._id = _id
+        self.rev_potential = rev_potential
+        self.duration = duration
+        self.interval = interval
+        self.weight = weight
+        self.delay = delay
+        self.tau = tau
+        self.start = start
+        self.number = number
+        self.event_times = poisson_process_duration(interval, duration)
+
+    def write2file(self, path):
+        stimuli_data = {
+            '_id': self._id,
+            'rev_potential': self.rev_potential,
+            'duration': self.duration,
+            'interval': self.interval,
+            'weight': self.weight,
+            'delay': self.delay,
+            'tau': self.tau,
+            'start': self.start,
+            'number': self.number,
+            'event_times': self.event_times
+        }
+
+        with open(path, 'w') as fout:
+            fout.write(json.dumps(stimuli_data))
+
+
+def poisson_times_from_stim_params(stim_params, duration):
+    # stim params is the stim_scaffold in MorphoStimParams
+    # used for the morphologically detailed cell
+    poisson_times = {}
+    for _id in stim_params:
+        for seg_ind in stim_params[_id]['seg_inds']:
+            poisson_times[seg_ind] = Poisson_Times(
+                _id,
+                stim_params[_id]['tau'],
+                stim_params[_id]['interval'],
+                stim_params[_id]['weight'],
+                stim_params[_id]['rev_potential'],
+                duration=duration
+            )
+    return poisson_times
+
+class MorphoStimParams:
+    def __init__(self, pyr):
+        self.pyr = pyr
+        self.stim_scaffold = {
+            'e': {
+                'n_stim_sets': 10,
+                'tau': 2,
+                'interval': 25,
+                'weight': .25,
+                'rev_potential': 0,
+                'seg_inds': np.random.randint(0, len(pyr.all_input_segments), 10)
+            },
+            'i': {
+                'n_stim_sets': 5,
+                'tau': 6,
+                'interval': 25,
+                'weight': .25,
+                'rev_potential': -80,
+                'seg_inds': np.random.randint(0, len(pyr.all_input_segments), 5)
+            }
+        }
+
 class ExperimentalStimParams:
     # stimuli set used for the point cell experiments
     def __init__(self):

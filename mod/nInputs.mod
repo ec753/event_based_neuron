@@ -174,7 +174,7 @@ INITIAL {
 }
 
 
-NET_RECEIVE (w) { 
+NET_RECEIVE (w) {
     if (flag == 1) {
         if (next_spike == t) {
             : output a spike

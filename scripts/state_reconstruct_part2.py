@@ -3,7 +3,7 @@ import json
 import numpy as np
 import matplotlib.pyplot as plt
 import pandas as pd
-sys.path.insert(1, "./utils/")
+sys.path.insert(1, "../utils/")
 import HH, Stimuli
 from neuron import h
 h.load_file("stdrun.hoc")
@@ -16,8 +16,8 @@ reconstruct_duration = 100
 stim_type = 'lw'
 
 print('loading origin data')
-origin_sim_data_dir = './data/state_reconstruct/original_simulation_data/'
-reconstruction_data_dir = './data/state_reconstruct/reconstruction_data/'
+origin_sim_data_dir = '../data/state_reconstruct/original_simulation_data/'
+reconstruction_data_dir = '../data/state_reconstruct/reconstruction_data/'
 
 # e_times
 with open(f'{origin_sim_data_dir}e_times.txt', 'r') as fin:
@@ -40,98 +40,8 @@ with open(f'{origin_sim_data_dir}median_spiking_history_{stim_type}.json', 'r') 
 origin_state_vars = np.load(f'{origin_sim_data_dir}state_vars_{stim_type}.npy')
 
 print('preparing reconstruction simulations')
-stim_scaffold = {
-    'base': {
-        'ex': Stimuli.PoissonStim(
-            'ex_base', 'ex_base',
-            interval=5,
-            rev_potential=0,
-            weight=0.0002,
-            tau=2,
-            seed='na'
-        ),
-        'in': Stimuli.PoissonStim(
-            'in_base', 'in_base',
-            interval=15,
-            rev_potential=-80,
-            weight=0.0005,
-            tau=6,
-            seed='na'
-        )
-    },
-    'lw': {
-        'ex': Stimuli.PoissonStim(
-            'ex_lw', 'ex_lw',
-            interval=5,
-            rev_potential=0,
-            weight=0.00015,
-            tau=2,
-            seed='na'
-        ),
-        'in': Stimuli.PoissonStim(
-            'in_lw', 'in_lw',
-            interval=15,
-            rev_potential=-80,
-            weight=0.0002,
-            tau=6,
-            seed='na'
-        )
-    },
-    'lt': {
-        'ex': Stimuli.PoissonStim(
-            'ex_lt', 'ex_lt',
-            interval=5,
-            rev_potential=0,
-            weight=0.0002,
-            tau=10,
-            seed='na'
-        ),
-        'in': Stimuli.PoissonStim(
-            'in_lt', 'in_lt',
-            interval=15,
-            rev_potential=-80,
-            weight=0.0005,
-            tau=40,
-            seed='na'
-        )
-    },
-    'lwlt': {
-        'ex': Stimuli.PoissonStim(
-            'ex_lwlt', 'ex_lwlt',
-            interval=5,
-            rev_potential=0,
-            weight=0.00015,
-            tau=10,
-            seed='na'
-        ),
-        'in': Stimuli.PoissonStim(
-            'in_lwlt', 'in_lwlt',
-            interval=15,
-            rev_potential=-80,
-            weight=0.0002,
-            tau=40,
-            seed='na'
-        )
-    },
-    'burst': {
-        'ex': Stimuli.PoissonStim(
-            'ex_burst', 'ex_burst',
-            interval=5,
-            rev_potential=0,
-            weight=0.0001,
-            tau=40,
-            seed='na'
-        ),
-        'in': Stimuli.PoissonStim(
-            'in_burst', 'in_burst',
-            interval=15,
-            rev_potential=-80,
-            weight=0.0005,
-            tau=20,
-            seed='na'
-        )
-    }
-}
+stim_params = Stimuli.ExperimentalStimParams()
+stim_scaffold = stim_params.stim_scaffold
 
 original_dfs = []
 reconstruction_cells = [HH.HH() for i in range(len(viable_spikes))]
