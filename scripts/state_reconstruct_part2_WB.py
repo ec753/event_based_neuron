@@ -48,7 +48,7 @@ print('preparing reconstruction simulations')
 stim_params = Stimuli.ExperimentalStimParams()
 stim_scaffold = stim_params.stim_scaffold
 
-num_cells = 20000
+num_cells = 5000
 original_dfs = []
 print('generating and initializing cells')
 reconstruction_cells = [WB.WB() for i in range(num_cells)]
@@ -105,6 +105,6 @@ print(f'original_dfs: {original_dfs.shape}')
 
 print('writing results to file')
 
-np.save(f'{reconstruction_data_dir}reconstruct_state_vars_{stim_type}.npy', reconstructed_state_vars)
-np.save(f'{reconstruction_data_dir}origin_state_vars_{stim_type}.npy', original_dfs)
+np.save(f'{reconstruction_data_dir}reconstruct_state_vars_{stim_type}.1.npy', reconstructed_state_vars)
+np.save(f'{reconstruction_data_dir}origin_state_vars_{stim_type}.1.npy', original_dfs)
 
