@@ -31,6 +31,8 @@ class HH:
         self._m = h.Vector().record(self.axon(0.5).hh._ref_m)
         self._n = h.Vector().record(self.axon(0.5).hh._ref_n)
         self._h = h.Vector().record(self.axon(0.5).hh._ref_h)
+        self.state_vars = [self._v, self._m, self._h, self._n]
+
         self.spike_times = h.Vector()
         self.nc_self = h.NetCon(self.axon(0.5)._ref_v, None, sec=self.axon)
         self.nc_self.threshold = 0

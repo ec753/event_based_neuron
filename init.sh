@@ -24,7 +24,7 @@ mkdir data/state_reconstruct_morpho/original_simulation_data
 # build figures directory
 mkdir figures
 
-# compile NEURON
+# compile NEURON and move it to where it is needed
 nrnivmodl ./mod
 cp -r x86_64/ scripts/
 cp -r x86_64/ notebooks/

@@ -4,103 +4,95 @@ import numpy as np
 import matplotlib.pyplot as plt
 import pandas as pd
 sys.path.insert(1, "../utils/")
-import HH, Stimuli
+import HH, WB, Stimuli
 from neuron import h
 h.load_file("stdrun.hoc")
 from neuron.units import mV, ms
+import argparse
+
+parser = argparse.ArgumentParser(description='Args')
+parser.add_argument('stim_type', type=str, help='stim_type')
+args = parser.parse_args()
 
 # part 2 of the state reconstruction experiment,
-# does the reconstructions of frames from the origin simulations, one stim_type at a time
-origin_sim_length = 1_000_000
-reconstruct_duration = 100
-stim_type = 'lw'
+reconstruct_duration = 250
+num_reconstructions = 5000
+data_dir = '../data/state_reconstruct_test/'
 
-print('loading origin data')
-origin_sim_data_dir = '../data/state_reconstruct/original_simulation_data/'
-reconstruction_data_dir = '../data/state_reconstruct/reconstruction_data/'
+stim_type = args.stim_type
 
-# e_times
-with open(f'{origin_sim_data_dir}e_times.txt', 'r') as fin:
-    e_times = [float(t) for t in fin.read().splitlines()]
+print('loading histories')
+spiking_histories = np.load(f'{data_dir}spiking_histories_{stim_type}.npy')
 
-# i_times
-with open(f'{origin_sim_data_dir}i_times.txt', 'r') as fin:
-    i_times = [float(t) for t in fin.read().splitlines()]
-
-# origin spike times
-with open(f'{origin_sim_data_dir}spikes_{stim_type}.txt', 'r') as fin:
-    spikes = [float(spike) for spike in fin.read().splitlines()]
-viable_spikes = [spike for spike in spikes[1:] if (spike < origin_sim_length - reconstruct_duration)]
-
-# median spiking history
-with open(f'{origin_sim_data_dir}median_spiking_history_{stim_type}.json', 'r') as fin:
-    o_history = json.load(fin)
-
-# origin state variables
-origin_state_vars = np.load(f'{origin_sim_data_dir}state_vars_{stim_type}.npy')
-
-print('preparing reconstruction simulations')
 stim_params = Stimuli.ExperimentalStimParams()
 stim_scaffold = stim_params.stim_scaffold
 
-original_dfs = []
-reconstruction_cells = [HH.HH() for i in range(len(viable_spikes))]
+print('initializing simulations')
+if stim_type == 'wb':
+    origin_simulations = [WB.WB() for i in range(num_reconstructions)]
+    reconstruct_simulations = [WB.WB() for i in range(num_reconstructions)]
+else:
+    origin_simulations = [HH.HH() for i in range(num_reconstructions)]
+    reconstruct_simulations = [HH.HH() for i in range(num_reconstructions)]
 fihs = []
 
-for i in range(len(viable_spikes)):
-    cell = reconstruction_cells[i]
-    starting_spike = viable_spikes[i]
+for i in range(num_reconstructions):
+    # stimulate with the same stimuli
+    _e_times = Stimuli.poisson_process_duration(stim_scaffold[stim_type]['ex'].interval, reconstruct_duration)
+    _i_times = Stimuli.poisson_process_duration(stim_scaffold[stim_type]['in'].interval, reconstruct_duration)
+    _e_stims = stim_scaffold[stim_type]['ex']
+    _i_stims = stim_scaffold[stim_type]['in']
+    _e_stims.stim_times = _e_times
+    _i_stims.stim_times = _i_times
 
-    # find original df
-    start_ind = int(starting_spike * 40)
-    end_ind = start_ind + (reconstruct_duration * 40) + 1
-    original_dfs.append(origin_state_vars[:, start_ind:end_ind])
+    origin_simulations[i].add_custom_stimulus(stim_scaffold[stim_type]['ex'])
+    origin_simulations[i].add_custom_stimulus(stim_scaffold[stim_type]['in'])
 
-    # inject stimuli
-    _e_times = [
-        t - starting_spike for t in e_times if (t > starting_spike) and (t < starting_spike + reconstruct_duration)
-    ]
-    _i_times = [
-        t - starting_spike for t in i_times if (t > starting_spike) and (t < starting_spike + reconstruct_duration)
-    ]
+    reconstruct_simulations[i].add_custom_stimulus(stim_scaffold[stim_type]['ex'])
+    reconstruct_simulations[i].add_custom_stimulus(stim_scaffold[stim_type]['in'])
 
-    _e_stims = Stimuli.PoissonStim(
-        rev_potential=stim_scaffold[stim_type]['ex'].rev_potential,
-        weight=stim_scaffold[stim_type]['ex'].weight,
-        tau=stim_scaffold[stim_type]['ex'].tau,
-        stim_times=_e_times,
-    )
+    # inirialize the sims with random spiking histories
+    history_inds = np.random.choice(spiking_histories.shape[0], 2)
 
-    _i_stims = Stimuli.PoissonStim(
-        rev_potential=stim_scaffold[stim_type]['in'].rev_potential,
-        weight=stim_scaffold[stim_type]['in'].weight,
-        tau=stim_scaffold[stim_type]['in'].tau,
-        stim_times=_i_times,
-    )
+    if stim_type == 'wb':
+        origin_simulations[i].sim_init(
+            v0=spiking_histories[history_inds[0], 0],
+            m0=spiking_histories[history_inds[0], 1],
+            h0=spiking_histories[history_inds[0], 2],
+        )
+        reconstruct_simulations[i].sim_init(
+            v0=spiking_histories[history_inds[1], 0],
+            m0=spiking_histories[history_inds[1], 1],
+            h0=spiking_histories[history_inds[1], 2],
+        )
+    else:
+        origin_simulations[i].sim_init(
+            v0=spiking_histories[history_inds[0], 0],
+            m0=spiking_histories[history_inds[0], 1],
+            h0=spiking_histories[history_inds[0], 2],
+            n0=spiking_histories[history_inds[0], 3],
+        )
+        reconstruct_simulations[i].sim_init(
+            v0=spiking_histories[history_inds[1], 0],
+            m0=spiking_histories[history_inds[1], 1],
+            h0=spiking_histories[history_inds[1], 2],
+            n0=spiking_histories[history_inds[1], 3],
+        )
 
-    cell.add_custom_stimulus(_e_stims)
-    cell.add_custom_stimulus(_i_stims)
-
-    # initialize
-    cell.sim_init(
-        v0=o_history['v'],
-        m0=o_history['m'],
-        h0=o_history['h'],
-        n0=o_history['n']
-    )
-
-    fihs.append(h.FInitializeHandler(cell.do_sim_init))
-
+    # handle initialize handlers
+    fihs.append(h.FInitializeHandler(origin_simulations[i].do_sim_init))
+    fihs.append(h.FInitializeHandler(reconstruct_simulations[i].do_sim_init))
 print('running simulations')
+if stim_type == 'wb':
+    h.celsius = 37
 h.finitialize(-65)
 h.continuerun(reconstruct_duration * ms)
 
-reconstructed_state_vars = [np.array((cell._t, cell._v, cell._m, cell._h,cell._n)) for cell in reconstruction_cells]
-reconstructed_state_vars = np.array(reconstructed_state_vars)
-original_dfs = np.array(original_dfs)
+print('calculating errors')
+origin_v = np.array([_sim._v for _sim in origin_simulations])
+reconstruct_v = np.array([_sim._v for _sim in reconstruct_simulations])
 
-print('writing results to file')
+np.save(f'{data_dir}origin_v_{stim_type}.npy', origin_v)
+np.save(f'{data_dir}reconstruct_v_{stim_type}.npy', reconstruct_v)
 
-np.save(f'{reconstruction_data_dir}reconstruct_state_vars_{stim_type}.npy', reconstructed_state_vars)
-np.save(f'{reconstruction_data_dir}origin_state_vars_{stim_type}.npy', original_dfs)
 

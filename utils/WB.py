@@ -46,6 +46,7 @@ class WB:
         self._m_kdr = h.Vector().record(self.soma(0.5).kdr._ref_m)
         self._h_kdr = h.Vector().record(self.soma(0.5).kdr._ref_h)
         self._h_naf = h.Vector().record(self.soma(0.5).naf._ref_h)
+        self.state_vars = [self._v, self._m_kdr, self._h_naf]
 
         self.spike_times = h.Vector()
         self.nc_self = h.NetCon(self.soma(0.5)._ref_v, None, sec=self.soma)
