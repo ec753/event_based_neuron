@@ -114,7 +114,7 @@ class Poisson_Times:
             fout.write(json.dumps(stimuli_data))
 
 
-def poisson_times_from_stim_params(stim_params, duration):
+def place_stims_along_morphology(stim_params, duration):
     # stim params is the stim_scaffold in MorphoStimParams
     # used for the morphologically detailed cell
     poisson_times = {}

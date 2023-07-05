@@ -77,6 +77,7 @@ class Pyramidal:
         # state: state dict from self.get_state()
         all_segs = [seg for sec in self.all for seg in sec]
         hh_segs = [seg for sec in self.hh_secs for seg in sec]
+
         for seg, v in zip(all_segs, self._initial_state["v"]):
             seg.v = v
         for seg, m, h, n in zip(hh_segs, self._initial_state["m"], self._initial_state["h"], self._initial_state["n"]):
@@ -135,28 +136,6 @@ class Pyramidal:
                 event_times=stimuli_json[seg_ind]['event_times']
             )
             self.connect_input(stimuli, self.all_input_segments[int(seg_ind)])
-
-
-def event_type2color(event_type):
-    if event_type == 'e':
-        return 'red'
-    elif event_type == 'i':
-        return 'blue'
-    elif event_type == 'o':
-        return 'green'
-    else:
-        return 'magenta'
-
-
-def event_type2color(event_type):
-    if event_type == 'e':
-        return 'red'
-    elif event_type == 'i':
-        return 'blue'
-    elif event_type == 'o':
-        return 'green'
-    else:
-        return 'magenta'
 
 
 class Event:
