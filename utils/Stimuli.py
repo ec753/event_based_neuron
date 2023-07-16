@@ -1,5 +1,6 @@
 import random
 import numpy as np
+from neuron import h
 
 def poisson_process_n(interval, n):
     interspikes = [random.expovariate(1. / interval) for _ in range(n)]
@@ -42,115 +43,72 @@ class PoissonStim:
         self.seed = seed
         self.stim_times = stim_times
 
-class PoissonStimSet:
-    # used morphologically detailed neuron models with multiple sources of input stimuli
-    def __init__(self, num_stims, all_input_segments, interval, duration, rev_potential, weight, tau):
-        stimuli_seg_inds = np.random.choice(np.arange(0, len(all_input_segments)), num_stims, replace=False)
-        stimuli_times = [poisson_process_duration(interval, duration) for x in range(num_stims)]
-        self.duration = duration
-        self.stimuli = [PoissonStim(
-            name='ex_' + str(seg_ind),
-            stim_id=seg_ind,
-            interval=interval,
-            rev_potential=rev_potential,
-            weight= weight,
-            tau = tau,
-            seed = np.random.randint(0, 10000000),
-            stim_times = stim_times) for seg_ind, stim_times in zip(stimuli_seg_inds, stimuli_times)]
 
-    def write_to_file(self, file_name):
-        stimuli_2_file = {
-            int(stim.seg_ind):
-                {
-                    'name': stimuli[seg_ind]._id,
-                    'rev_potential': stim.rev_potential,
-                    'interval': stim.interval,
-                    'weight': stim.weight,
-                    'tau': stim.tau,
-                    'stim_times': stim.event_times
-                } for stim in self.stimuli
-        }
-        with open(file_name, "w") as fout:
-            json.dump(stimuli_2_file, fout)
-
-
-class Poisson_Times:
-    # used for the morphologically detailed cell
-    def __init__(self, _id, tau, interval, weight, rev_potential, duration=10000, number=99999999,
-                 delay=0, start=0):
-        '''
-        :param _id:
-        :param event_times: instead of auto generating, provide a list of event_times
-        :param max_time: maximum time (simulation duration)
-        :param number: maximum number of stimuli (typically inconsequential if max_time is reasonable)
-        '''
-
+class MorphoStimulus:
+    def __init__(self, _id, rp, interval, weight, tau, segment, event_times=None):
         self._id = _id
-        self.rev_potential = rev_potential
-        self.duration = duration
+        self.rp = rp
         self.interval = interval
         self.weight = weight
-        self.delay = delay
         self.tau = tau
-        self.start = start
-        self.number = number
-        self.event_times = poisson_process_duration(interval, duration)
+        self.segment = segment
+        self.event_times = event_times
 
-    def write2file(self, path):
-        stimuli_data = {
-            '_id': self._id,
-            'rev_potential': self.rev_potential,
-            'duration': self.duration,
-            'interval': self.interval,
-            'weight': self.weight,
-            'delay': self.delay,
-            'tau': self.tau,
-            'start': self.start,
-            'number': self.number,
-            'event_times': self.event_times
-        }
+    def __repr__(self):
+        return f'{self._id} - rp:{self.rp} - interval:{self.interval} - weight:{self.weight} - tau:{self.tau}'
 
-        with open(path, 'w') as fout:
-            fout.write(json.dumps(stimuli_data))
+    def connect_to_seg(self, seg):
+        # seg: NEURON segment (without the location)
+        syn = h.ExpSyn(seg(0.5))
+        syn.tau = self.tau
+        syn.e = self.rp
+
+        vecstim_times = h.Vector(self.event_times)
+        vecstim = h.VecStim()
+        vecstim.play(vecstim_times)
+
+        nc = h.NetCon(vecstim, syn)
+        nc.weight[0] = self.weight
+        nc.delay = 0
+
+        return syn, vecstim, nc
 
 
-def place_stims_along_morphology(stim_params, duration):
-    # stim params is the stim_scaffold in MorphoStimParams
-    # used for the morphologically detailed cell
-    poisson_times = {}
-    for _id in stim_params:
-        for seg_ind in stim_params[_id]['seg_inds']:
-            poisson_times[seg_ind] = Poisson_Times(
-                _id,
-                stim_params[_id]['tau'],
-                stim_params[_id]['interval'],
-                stim_params[_id]['weight'],
-                stim_params[_id]['rev_potential'],
-                duration=duration
-            )
-    return poisson_times
+class MorphoStimuli:
+    def __init__(self, _id, stim_type_array, segment_array, stim_scaffold, duration):
+        # set of excitatory and inhibitory stimuli
+        # stim_type_array: list of stim types
+        # example ['e', 'e', 'i']
+        # segment_array: list of segments the respective stimuli connect to, must be same length as stim_type_array
+        # example: [5, 10, 31]
+        # stim_params: refers to the StimuliParams object
+        self._id = _id
+        self.stimuli = [
+            MorphoStimulus(
+                stim_type,
+                stim_scaffold[stim_type].rev_potential,
+                stim_scaffold[stim_type].interval,
+                stim_scaffold[stim_type].weight,
+                stim_scaffold[stim_type].tau,
+                segment,
+                poisson_process_duration(stim_scaffold[stim_type].interval, duration)
+            ) for stim_type, segment in zip(stim_type_array, segment_array)
+        ]
 
-class MorphoStimParams:
-    def __init__(self, pyr):
-        self.pyr = pyr
-        self.stim_scaffold = {
-            'e': {
-                'n_stim_sets': 10,
-                'tau': 2,
-                'interval': 25,
-                'weight': .25,
-                'rev_potential': 0,
-                'seg_inds': np.random.randint(0, len(pyr.all_input_segments), 10)
-            },
-            'i': {
-                'n_stim_sets': 5,
-                'tau': 6,
-                'interval': 25,
-                'weight': .25,
-                'rev_potential': -80,
-                'seg_inds': np.random.randint(0, len(pyr.all_input_segments), 5)
-            }
-        }
+        self.syns = []
+        self.vecstims = []
+        self.ncs = []
+
+    def __repr__(self):
+        out = 'Stimuli\n' + '\n'.join([str(stimulus._id) + ' - ' + str(stimulus.segment) for stimulus in self.stimuli])
+        return out
+
+    def connect_to_cell(self, connection_points):
+        for stimulus in self.stimuli:
+            syn, vecstim, nc = stimulus.connect_to_seg(connection_points[stimulus.segment])
+            self.syns.append(syn)
+            self.vecstims.append(vecstim)
+            self.ncs.append(nc)
 
 class ExperimentalStimParams:
     # stimuli set used for the point cell experiments
@@ -263,5 +221,24 @@ class ExperimentalStimParams:
                     tau=6,
                     seed='na'
                 )
+            },
+            'pyr': {
+                'ex': PoissonStim(
+                    'ex_pyr', 'ex_pyr',
+                    interval=40,
+                    rev_potential=0,
+                    weight=0.0015,
+                    tau=2,
+                    seed='na'
+                ),
+                'in': PoissonStim(
+                    'in_pyr', 'in_pyr',
+                    interval=40,
+                    rev_potential=-80,
+                    weight=0.003,
+                    tau=6,
+                    seed='na'
+                ),
+                'stim_type_array': ['ex']*15+['in']*15
             }
         }

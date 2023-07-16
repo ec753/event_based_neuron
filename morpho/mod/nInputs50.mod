@@ -47,6 +47,16 @@ ASSIGNED {
     e37 (ms)
 	e38 (ms)
     e39 (ms)
+	e40 (ms)
+    e41 (ms)
+    e42 (ms)
+    e43 (ms)
+	e44 (ms)
+    e45 (ms)
+    e46 (ms)
+    e47 (ms)
+	e48 (ms)
+    e49 (ms)
     i0 (ms)
     i1 (ms)
     i2 (ms)
@@ -87,6 +97,16 @@ ASSIGNED {
     i37 (ms)
 	i38 (ms)
     i39 (ms)
+	i40 (ms)
+    i41 (ms)
+    i42 (ms)
+    i43 (ms)
+    i44 (ms)
+    i45 (ms)
+    i46 (ms)
+    i47 (ms)
+	i48 (ms)
+    i49 (ms)
 }
 
 INITIAL {
@@ -131,6 +151,16 @@ INITIAL {
     e37 = -INFINITY
 	e38 = -INFINITY
 	e39 = -INFINITY
+	e40 = -INFINITY
+    e41 = -INFINITY
+    e42 = -INFINITY
+    e43 = -INFINITY
+	e44 = -INFINITY
+    e45 = -INFINITY
+    e46 = -INFINITY
+    e47 = -INFINITY
+	e48 = -INFINITY
+	e49 = -INFINITY
     i0 = -INFINITY
     i1 = -INFINITY
     i2 = -INFINITY
@@ -171,6 +201,16 @@ INITIAL {
     i37 = -INFINITY
     i38 = -INFINITY
     i39 = -INFINITY
+	i40 = -INFINITY
+    i41 = -INFINITY
+    i42 = -INFINITY
+    i43 = -INFINITY
+    i44 = -INFINITY
+    i45 = -INFINITY
+	i46 = -INFINITY
+    i47 = -INFINITY
+    i48 = -INFINITY
+    i49 = -INFINITY
 }
 
 
@@ -184,6 +224,16 @@ NET_RECEIVE (w) {
     } else {
         if (w > 0) {
             : excitatory input
+			e49 = e48
+            e48 = e47
+            e47 = e46
+            e46 = e45
+            e45 = e44
+			e44 = e43
+            e43 = e42
+            e42 = e41
+            e41 = e40
+			e40 = e39
 			e39 = e38
             e38 = e37
             e37 = e36
@@ -227,6 +277,16 @@ NET_RECEIVE (w) {
         }
         if (w < 0) {
             : inhibitory input
+			i49 = i48
+            i48 = i47
+            i47 = i46
+            i46 = i45
+            i45 = i44
+			i44 = i43
+            i43 = i42
+            i42 = i41
+            i41 = i40
+            i40 = i39
 			i39 = i38
             i38 = i37
             i37 = i36
@@ -271,8 +331,8 @@ NET_RECEIVE (w) {
         VERBATIM
         double (*event_callback)(double, ...) = (double (*)(double, ...)) _p_on_event;
         double time_to_spike = event_callback(last_spike,
-			e0,e1,e2,e3,e4,e5,e6,e7,e8,e9,e10,e11,e12,e13,e14,e15,e16,e17,e18,e19,e20,e21,e22,e23,e24,e25,e26,e27,e28,e29,e30,e31,e32,e33,e34,e35,e36,e37,e38,e39,
-			i0,i1,i2,i3,i4,i5,i6,i7,i8,i9,i10,i11,i12,i13,i14,i15,i16,i17,i18,i19,i20,i21,i22,i23,i24,i25,i26,i27,i28,i29,i30,i31,i32,i33,i34,i35,i36,i37,i38,i39);
+			e0,e1,e2,e3,e4,e5,e6,e7,e8,e9,e10,e11,e12,e13,e14,e15,e16,e17,e18,e19,e20,e21,e22,e23,e24,e25,e26,e27,e28,e29,e30,e31,e32,e33,e34,e35,e36,e37,e38,e39,e40,e41,e42,e43,e44,e45,e46,e47,e48,e49,
+			i0,i1,i2,i3,i4,i5,i6,i7,i8,i9,i10,i11,i12,i13,i14,i15,i16,i17,i18,i19,i20,i21,i22,i23,i24,i25,i26,i27,i28,i29,i30,i31,i32,i33,i34,i35,i36,i37,i38,i39,i40,i41,i42,i43,i44,i45,i46,i47,i48,i49);
 		ENDVERBATIM
         : send a self-event after the predicted delay (with flag of 1)
         net_send(time_to_spike, 1)

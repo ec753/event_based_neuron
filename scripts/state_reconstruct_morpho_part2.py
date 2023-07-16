@@ -7,6 +7,7 @@ import gc
 import os
 import time
 import pickle as pkl
+import argparse
 
 import sys
 sys.path.insert(1, "../utils/")
@@ -17,12 +18,17 @@ h.load_file("stdlib.hoc")
 h.load_file("import3d.hoc")
 h.load_file("stdrun.hoc")
 
+parser = argparse.ArgumentParser(description='Args')
+parser.add_argument('ind', type=str, help='ind from state_reconstruct_morpho_part1')
+parser.add_argument('unique_id', type=str, help='help identify these simulations')
+args = parser.parse_args()
+
 reconstruct_duration = 250
 data_dir = '../data/state_reconstruct_morpho/'
-num_cell_pairs = 5 # we will be simulating num_cell_pairs * 2 cells
+num_cell_pairs = 20 # we will be simulating num_cell_pairs * 2 cells
 
 # load a matching stimuli_set and spiking_histories
-ind = 0
+ind = args.ind
 
 with open(f'{data_dir}stimuli_sets/stimuli_set_{ind}.pkl', 'rb') as handle:
     stimuli = pkl.load(handle)
@@ -48,6 +54,7 @@ for cell0, cell1 in zip(cells_0, cells_1):
 
     # initialize with different spiking histories
     history_inds = np.random.randint(0, len(spiking_histories), 2)
+
     cell0.set_initialize_state(spiking_histories[history_inds[0]])
     cell1.set_initialize_state(spiking_histories[history_inds[1]])
 
@@ -61,8 +68,8 @@ for cell0, cell1 in zip(cells_0, cells_1):
     v0 = np.array([list(vec) for vec in cell0.v])
     v1 = np.array([list(vec) for vec in cell1.v])
 
-    np.save(f'{data_dir}results/cellv_{ind}_{cell_count}_0.npy', v0)
-    np.save(f'{data_dir}results/cellv_{ind}_{cell_count}_1.npy', v1)
+    np.save(f'{data_dir}results/cellv_{ind}_{cell_count}_0-{unique_id}.npy', v0)
+    np.save(f'{data_dir}results/cellv_{ind}_{cell_count}_1-{unique_id}.npy', v1)
     cell_count += 1
 
 
