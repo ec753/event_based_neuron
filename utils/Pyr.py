@@ -4,15 +4,21 @@ h.load_file("stdrun.hoc")
 h.load_file("stdlib.hoc")
 h.load_file("import3d.hoc")
 
+import json
+
 import sys
 sys.path.insert(1, "../utils/")
 from modelDB_87284 import Morse_et_al_2010
 
 class Pyr:
-    def __init__(self, recording=False):
+    def __init__(self, vm_recording=False):
         '''
-        recording: bool describing whether to record state variables (is expensive)
+        _id: currently used to denote the specific input seg pattern
+            matters when spike_history_recording == True
+        vm_recording: bool describing whether to record membrane voltage (is expensive)
+        spike_history_recording: bool describing whether to record state variables on output spikes, writes to outdir
         '''
+
         self.cell = Morse_et_al_2010()
         self.connection_points = self.cell.apic + self.cell.basal  # where stimuli can be connected
         self.all_segs = [self.cell.soma, self.cell.axon] + self.cell.basal + self.cell.apic
@@ -29,7 +35,7 @@ class Pyr:
         self.nc_self.threshold = 0
         self.nc_self.record(self.spike_times)
 
-        if recording:
+        if vm_recording:
             self._t = h.Vector().record(h._ref_t)
             self._vs = [h.Vector().record(seg._ref_v) for sec in self.all_segs for seg in sec]
 
@@ -44,3 +50,67 @@ class Pyr:
         h.celsius = 35
         h.finitialize(-65)
         h.continuerun(duration * ms)
+
+    def all_state_vars(self):
+        all_state_vars = {}
+        for seg in self.all_segs:
+            all_state_vars[str(seg)] = get_state_vars(seg)
+        return all_state_vars
+
+    def initialize_state_vars(self, state_var_file):
+        #TODO
+        return
+
+def get_state_vars(sec):
+    # retrieves the state vars of the given section
+
+    results = {}
+
+    mname = h.ref("")
+
+
+    center_seg_dir = dir(sec(0.5))
+
+    mechs_present = []
+
+    # membrane mechanisms
+    mt = h.MechanismType(0)
+
+    for i in range(int(mt.count())):
+        mt.select(i)
+        mt.selected(mname)
+        name = mname[0]
+        if name in center_seg_dir:
+            mechs_present.append(name)
+
+    results["density_mechs"] = {}
+
+    for mech in mechs_present:
+        my_results = {}
+        ms = h.MechanismStandard(mech, 3)
+        for j in range(int(ms.count())):
+            n = int(ms.name(mname, j))
+            name = mname[0]
+            pvals = []
+            # TODO: technically this is assuming everything that ends with _ion
+            #       is an ion. Check this.
+            if mech.endswith("_ion"):
+                pvals = [getattr(seg, name) for seg in sec]
+            else:
+                mechname = name  # + '_' + mech
+                for seg in sec:
+                    if n > 1:
+                        pvals.append([getattr(seg, mechname)[i] for i in range(n)])
+                    else:
+                        pvals.append(getattr(seg, mechname))
+            my_results[
+                name[: -(len(mech) + 1)] if name.endswith("_" + mech) else name
+            ] = pvals
+        # TODO: should be a better way of testing if an ion
+        if not mech.endswith("_ion"):
+            results["density_mechs"][mech] = my_results
+
+    results["v"] = [seg.v for seg in sec]
+
+    return results
+

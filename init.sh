@@ -4,9 +4,13 @@
 
 # build data directories
 mkdir data
+mkdir data/morpho
+mkdir data/morpho/random_histories
+mkdir data/morpho/segment_arrays
+mkdir data/morpho/spiking_histories
 mkdir data/nInputs
-mkdir data/nInputs_morpho
 mkdir data/nInputs_no_ospike
+mkdir data/nInputs_ospike_WB
 mkdir data/nInputs_WB
 mkdir data/nst_distribution_evolution
 mkdir data/nst_distribution_evolution/results
@@ -18,8 +22,6 @@ mkdir data/partial_history_WB/results
 mkdir data/state_reconstruct
 mkdir data/state_reconstruct/original_simulation_data
 mkdir data/state_reconstruct/reconstruction_data
-mkdir data/state_reconstruct_morpho
-mkdir data/state_reconstruct_morpho/original_simulation_data
 
 # build figures directory
 mkdir figures
@@ -28,3 +30,8 @@ mkdir figures
 nrnivmodl ./mod
 cp -r x86_64/ scripts/
 cp -r x86_64/ notebooks/
+
+nrnivmodl ./morpho/mod
+cp -r ./morpho/x86_64/ ./morpho/scripts/
+
+

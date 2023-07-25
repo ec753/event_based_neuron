@@ -49,5 +49,5 @@ for segment_array, cell in zip(segment_arrays, cells):
     spike_rate = (len(cell.spike_times) / (duration/1000))
     if spike_rate > 0:
         # save segment_array
-        unique_id = len(os.listdir())
+        unique_id = len(os.listdir(data_dir))
         np.save(f'{data_dir}segment_array_{spike_rate}Hz_ID{unique_id}.npy', segment_array)
