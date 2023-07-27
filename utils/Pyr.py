@@ -57,20 +57,34 @@ class Pyr:
             all_state_vars[str(seg)] = get_state_vars(seg)
         return all_state_vars
 
-    def initialize_state_vars(self, state_var_file):
-        #TODO
-        return
+    def initialize_state_vars(self, history_file):
+        # initializes all state variables using a history_file (json)
+        # this history file is the json output of get_state_vars() for all secs
+        with open(history_file) as fin:
+            history = json.load(fin)
+        for seg in self.all_segs:
+            seg_history = history[str(seg)]
+            secs = [sec for sec in seg]
+            history_walk(seg_history, secs)
+
+def history_walk(seg_history, secs):
+    # walks the pyr morphology and the history json simultaneously using recursion
+    for key, item in seg_history.items():
+        if type(item) is dict:
+            if len(item.keys()) > 0:
+                new_seg_history = item
+                new_secs = [getattr(sec, str(key)) for sec in secs]
+                history_walk(new_seg_history, new_secs)
+        else:
+            for val, sec in zip(item, secs):
+                setattr(sec, key, val)
 
 def get_state_vars(sec):
     # retrieves the state vars of the given section
 
     results = {}
-
     mname = h.ref("")
-
-
     center_seg_dir = dir(sec(0.5))
-
     mechs_present = []
 
     # membrane mechanisms
@@ -82,8 +96,6 @@ def get_state_vars(sec):
         name = mname[0]
         if name in center_seg_dir:
             mechs_present.append(name)
-
-    results["density_mechs"] = {}
 
     for mech in mechs_present:
         my_results = {}
@@ -108,7 +120,7 @@ def get_state_vars(sec):
             ] = pvals
         # TODO: should be a better way of testing if an ion
         if not mech.endswith("_ion"):
-            results["density_mechs"][mech] = my_results
+            results[mech] = my_results
 
     results["v"] = [seg.v for seg in sec]
 

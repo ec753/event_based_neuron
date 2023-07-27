@@ -110,6 +110,7 @@ class MorphoStimuli:
             self.vecstims.append(vecstim)
             self.ncs.append(nc)
 
+            
 class ExperimentalStimParams:
     # stimuli set used for the point cell experiments
     def __init__(self):

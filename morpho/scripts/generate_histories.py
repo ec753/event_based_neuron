@@ -20,17 +20,15 @@ parser.add_argument('stim_locs_file', type=str, help='path of file with stimuli 
 parser.add_argument('n', type=int, help='number of histories to generate')
 parser.add_argument('duration', type=float, help='duration')
 parser.add_argument('outdir', type=str, help='directory to dump histories to')
-parser.add_argument('id', type=str, help='segment array id (segment_array_8.2Hz_ID16.npy should have id = 16)')
 args = parser.parse_args()
 
 stim_locs_file = args.stim_locs_file
 n = args.n
 duration = args.duration
 outdir = args.outdir
-_id = args.id
-
+_id = stim_locs_file.split('_')[-1].split('.')[0]
 def save_history(pyr, outdir, i, _id):
-    filepath = f'{outdir}history_{i}_ID{_id}.json'
+    filepath = f'{outdir}history_{i}_{_id}.json'
     #print(f'spike! {i}, {h.t}, {_id}')
     state_vars = pyr.all_state_vars()
     with open(filepath, "w") as outfile:

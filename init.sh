@@ -31,7 +31,8 @@ nrnivmodl ./mod
 cp -r x86_64/ scripts/
 cp -r x86_64/ notebooks/
 
-nrnivmodl ./morpho/mod
-cp -r ./morpho/x86_64/ ./morpho/scripts/
+cd morpho
+nrnivmodl ./mod
+cp -r x86_64/ scripts/
 
 

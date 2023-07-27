@@ -32,7 +32,7 @@ stimuli_sets = [
 ]
 
 print('initializing cells')
-cells = [Pyr.Pyr(recording=False) for _i in range(num_cells)]
+cells = [Pyr.Pyr() for _i in range(num_cells)]
 
 print('connecting stimuli')
 for stimuli, cell in zip(stimuli_sets, cells):
