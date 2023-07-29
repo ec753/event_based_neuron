@@ -47,7 +47,7 @@ for pattern_ind in range(num_input_patterns_per_n):
     ]
 
 with open(data_dir + f"stimuli_pattern_{n}.json", "w") as fout:
-    fout.write(json.dumps(stimuli))
+    fout.write(json.dumps(stimuli_patterns))
 
 ########## HISTORIES ##########
 histories_files = [file for file in os.listdir(f'{data_dir}random_histories/') if segment_arrayID+'.json' in file]
