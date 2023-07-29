@@ -57,11 +57,13 @@ class Pyr:
             all_state_vars[str(seg)] = get_state_vars(seg)
         return all_state_vars
 
-    def initialize_state_vars(self, history_file):
-        # initializes all state variables using a history_file (json)
-        # this history file is the json output of get_state_vars() for all secs
-        with open(history_file) as fin:
-            history = json.load(fin)
+    def initialize_state_vars(self, history):
+        # initializes all state variables using a history(json)
+        # history can be a str path to the history file; the json output of get_state_vars() for all secs
+        # or the dict object 
+        if type(history) == str:
+            with open(history) as fin:
+                history = json.load(fin)
         for seg in self.all_segs:
             seg_history = history[str(seg)]
             secs = [sec for sec in seg]
