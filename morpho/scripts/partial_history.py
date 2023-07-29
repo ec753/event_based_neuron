@@ -89,7 +89,7 @@ for pattern_ind in range(num_input_patterns_per_n):
     for history_ind in range(len(histories)):
         nsts = [spike - last_stimulus for spike in list(cells[history_ind].spike_times)]
         nsts = [nst for nst in nsts if nst > 0]
-        if len(nsts < 1):
+        if len(nsts) < 1:
             results.append(np.nan)
         else:
             results.append(min(nsts))
