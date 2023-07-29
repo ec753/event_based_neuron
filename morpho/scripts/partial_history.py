@@ -39,10 +39,10 @@ stim_params = Stimuli.ExperimentalStimParams()
 stim_scaffold = stim_params.stim_scaffold['pyr']
 stim_locs = np.load(f'{data_dir}segment_arrays/{stim_locs_file}')
 
-stimuli = {}
+stimuli_patterns = {}
 
 for pattern_ind in range(num_input_patterns_per_n):
-    stimuli[pattern_ind] = [
+    stimuli_patterns[pattern_ind] = [
         Stimuli.poisson_process_n(stim_scaffold[stim_type].interval, n) for stim_type in stim_scaffold['stim_type_array']
     ]
 
