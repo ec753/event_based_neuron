@@ -1,6 +1,7 @@
 import json
 import numpy as np
 import os
+import time
 
 from neuron import h
 from neuron.units import mV, ms
@@ -48,16 +49,19 @@ for pattern_ind in range(num_input_patterns_per_n):
 
 with open(data_dir + f"stimuli_pattern_{n}.json", "w") as fout:
     fout.write(json.dumps(stimuli_patterns))
-
+print()
 ########## HISTORIES ##########
+print('loading histories')
 histories_files = [file for file in os.listdir(f'{data_dir}random_histories/') if segment_arrayID+'.json' in file]
 histories = []
 for history_file in histories_files[:num_histories]:
     with open(f'{data_dir}random_histories/{history_file}') as fin:
         histories.append(json.load(fin))
-
+print(f'histories: {len(histories)}')
+print()
 ########## EXPERIMENT ##########
 for pattern_ind in range(num_input_patterns_per_n):
+    start_time = time.time()
     print(f'{pattern_ind}/{num_input_patterns_per_n}')
     results = []
     print('setting up stimuli')
@@ -81,17 +85,26 @@ for pattern_ind in range(num_input_patterns_per_n):
         cells[history_ind].add_stimuli(stimuli)
     
     print('running simulation')
+    print(f'stimuli duration: {last_stimulus + 50}')
+    h.CVode().active(True)
     h.celsius = 35
     h.finitialize()
     h.continuerun(last_stimulus + 50 * ms)
     
     print('parsing nsts')
+    
     for history_ind in range(len(histories)):
+        print(f'{history_ind} - {len(cells[history_ind].spike_times)}')
         nsts = [spike - last_stimulus for spike in list(cells[history_ind].spike_times)]
         nsts = [nst for nst in nsts if nst > 0]
         if len(nsts) < 1:
             results.append(np.nan)
         else:
             results.append(min(nsts))
-
+    
+    print(results)
     np.save(f'{data_dir}partial_history/{segment_arrayID}_{n}_{pattern_ind}', np.array(results))
+    print(f'simulation took {round(time.time() - start_time, 3)}')
+    print()
+
+    #h("forall delete_section()")
