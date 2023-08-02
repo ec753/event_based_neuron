@@ -143,7 +143,8 @@ if __name__ == '__main__':
 
     num_events = sum([len(stimulus.event_times) for stimulus in stimuli.stimuli])
     print(f'total number of events: {num_events}')
-
+    
+    '''
     print('loading histories')
     histories_files = [file for file in os.listdir(f'{data_dir}random_histories/') if segment_arrayID+'.json' in file]
     histories = []
@@ -152,6 +153,7 @@ if __name__ == '__main__':
             histories.append(json.load(fin))
     print(f'histories: {len(histories)}')
     print()
+    '''
 
     pool = multiprocessing.Pool(1)
 
