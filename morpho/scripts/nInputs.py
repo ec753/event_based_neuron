@@ -40,7 +40,9 @@ extra_duration = args.extra_duration #20
 
 def run_event_sim(stimuli, last_stimulus, extra_duration):
     pyr = Pyr.Pyr()
-    #pyr.initialize_state_vars(history) #TODO
+    # initialize with random history
+    #history_ind = np.random.randint(len(histories))
+    #pyr.initialize_state_vars(histories[history_ind]) 
     '''
     for stimulus in stimuli.stimuli:
         print(stimulus.event_times)
