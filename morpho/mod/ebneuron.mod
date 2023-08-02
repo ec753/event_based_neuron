@@ -5,12 +5,14 @@ NEURON {
 
 ASSIGNED {
     on_event
+    last_spike (ms)
     next_spike  (ms)
 	stim_times[1500] : 50 stimuli * 30 stimuli types
 }
 
 INITIAL {
 	LOCAL i
+    last_spike = -INFINITY
 	FROM i=0 TO 50*30 - 1 { 		: THE MINUS 1 IS NECESSARY FOR REASONS
         stim_times[i] = -INFINITY
     }
@@ -19,12 +21,17 @@ INITIAL {
 
 NET_RECEIVE (w) {
 	LOCAL i
-    if (flag == 1) {
+    if (flag == 1) { :flag==1 means spike
         if (next_spike == t) {
             : output a spike
+            printf("SPIKE - t:%g\n", t)
             net_event(t)
+            last_spike = t
+        } else {
+            printf("rewritten spike - t:%g\n", t)
         }
     } else {
+        printf("stim - w:%g t:%g\n", w, t)
         FROM i=1 TO 50-1 {
             stim_times[(w*50)-i] = stim_times[((w)*50)-(i+1)] : w is 1 indexed
         }
@@ -33,7 +40,7 @@ NET_RECEIVE (w) {
         double (*event_callback)(double*) = (double (*)(double*)) _p_on_event;
         double time_to_spike = event_callback(stim_times);
 		ENDVERBATIM
-        : send a self-event after the predicted delay (with flag of 1)
+        : send a self-event after the predicted delay (with flag of 1 - flag=1 means spike)
         : printf("time to spike %g\n", time_to_spike)
         : printf("w %g %g", ((w+1)*50)-0, ((w+1)*50)-(49+1))
         : printf("w %g t %g\n", w, t)

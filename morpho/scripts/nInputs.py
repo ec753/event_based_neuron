@@ -18,36 +18,42 @@ import sys
 sys.path.insert(1, "../../utils/")
 import Stimuli, Pyr
 
+import argparse
+parser = argparse.ArgumentParser(description='Args')
+parser.add_argument('uniqueID', type=str, help='unique id added to file to avoid collisions while parallelizing')
+parser.add_argument('segment_arrayID', type=str, help='ID of the stim_locs_file made from initialize_stimuli_locs.py')
+parser.add_argument('stim_times_file', type=str, help='file to times of the stimuli, writes one if it DNE')
+parser.add_argument('n', type=int, help='number of inputs')
+parser.add_argument('data_dir', type=str, help='directory to dump results to')
+parser.add_argument('duration', type=float, help='duration of the simulation')
+parser.add_argument('extra_duration', type=float, help='duration added to each onevent simulation')
+args = parser.parse_args()
 
-segment_arrayID = 'ID96'
-n = 5
-data_dir = '../../data/morpho/'
-duration = 100
-extra_duration = 20
+uniqueID = args.uniqueID #'0' 
+segment_arrayID = args.segment_arrayID #'ID96'
+stim_times_file = args.stim_times_file #'../../data/morpho/nInputs_stimuli/stim_times_0.json'
+n = args.n #5
+data_dir = args.data_dir #'../../data/morpho/'
+duration = args.duration #100
+extra_duration = args.extra_duration #20
 
 
 def run_event_sim(stimuli, last_stimulus, extra_duration):
-    print(f'pooled event_sim: {last_stimulus + extra_duration}')
-    print(f'initializing cell')
     pyr = Pyr.Pyr()
     #pyr.initialize_state_vars(history) #TODO
-    print(f'adding stimuli')
+    '''
+    for stimulus in stimuli.stimuli:
+        print(stimulus.event_times)
+    '''
     pyr.add_stimuli(stimuli)
     
-    #h.CVode().active(True)
+    h.CVode().active(True)
     h.celsius = 35
-    print(f'celcius set')
-    time.sleep(2)
     h.finitialize()
-    print(f'finitialized')
-    time.sleep(2)
     h.continuerun(last_stimulus + extra_duration)
-    print(f'spikes: {list(pyr.spike_times)}')
+    #print(f'spikes: {list(pyr.spike_times)}')
     nsts = [nst for nst in list(pyr.spike_times) if nst > last_stimulus]
 
-    print()
-
-    os.wait()
     if len(nsts) == 0:
         return np.inf
     else:
@@ -57,28 +63,32 @@ def pyonevent(stim_times):
     start_time = time.time()
     stim_times = neuron.numpy_from_pointer(stim_times, 50*30)
     stim_times = stim_times.reshape([30,50])[:,:n]
-    #stim_times = stim_times - np.min(stim_times[stim_times > 0])
-    print(f'stim_times: {stim_times.shape}')
-    #print(f'{np.min(stim_times[stim_times > 0])}')
+    # recenter to avoid extra simulation time
+    first_stim = np.min(stim_times[stim_times >= 0])
+    last_stim = np.max(stim_times)
+    stim_times = stim_times - first_stim
     # change the stimuli
     for i in range(30):
-        stimuli.stimuli[i].event_times = list(stim_times[i, :])
+        stimuli.stimuli[i].event_times = sorted([stim for stim in list(stim_times[i, :]) if stim >= 0])
     
     # pool is used to parallelize
     nst = pool.starmap(
         run_event_sim,
         [
             [
-                stimuli, duration, extra_duration #stimuli, (np.nanmax(stim_times)+50), extra_duration
+                stimuli, np.max(stim_times), extra_duration
             ]
         ]
     )[0]
+
+    nst = nst + first_stim
+    time2spike = nst - last_stim
     
-    print(nst)
-    print(f'simulation time: {np.nanmax(stim_times) + extra_duration}')
-    print(f'real time: {time.time() - start_time}')
+    print(f'nst: {nst}')
+    #print(f'simulation time: {np.nanmax(stim_times) + extra_duration}')
+    #print(f'real time: {time.time() - start_time}')
     print()
-    return nst
+    return time2spike
 
 
 # Set up communications between NEURON and python
@@ -95,7 +105,7 @@ event_callback_ptr = nrn_hocobj_ptr(ctypes.cast(on_event_c_ptr, double_ptr))
 
 
 if __name__ == '__main__':
-    print('generating stimuli')
+    print('loading stimuli')
     stim_locs_file = [file for file in os.listdir(f'{data_dir}segment_arrays/') if segment_arrayID+'.npy' in file][0]
     print(stim_locs_file)
 
@@ -105,14 +115,32 @@ if __name__ == '__main__':
 
     stimuli = Stimuli.MorphoStimuli('stimuli',stim_scaffold['stim_type_array'],stim_locs, stim_scaffold, duration)
 
-    num_events = sum([len(stimulus.event_times) for stimulus in stimuli.stimuli])
-    print(f'total number of events: {num_events}')
-
+    try: 
+        # open the file
+        with open(stim_times_file, 'r') as fin:
+            stim_times = json.load(fin)
+        # set the stim times
+        for i, stimulus in enumerate(stimuli.stimuli):
+            stimulus.event_times = stim_times[str(i)]
+    except:
+        # write the file
+        print('no stim_times file found, writing file instead')
+        try: os.mkdir(f'{data_dir}nInputs_stimuli') 
+        except: pass
+        stim_times = {i: stimulus.event_times for i, stimulus in enumerate(stimuli.stimuli)}
+        with open(stim_times_file, "w") as fout:
+            fout.write(json.dumps(stim_times))
+    
+    '''
     try: os.mkdir(f'{data_dir}nInputs_stimuli') 
     except: pass
+    # save stim_times class obj
     with open(f'{data_dir}nInputs_stimuli/morpho_stimuli_{segment_arrayID}_{n}.pkl', 'wb') as handle:
         pkl.dump(stimuli, handle, protocol=pkl.HIGHEST_PROTOCOL)
+    '''
 
+    num_events = sum([len(stimulus.event_times) for stimulus in stimuli.stimuli])
+    print(f'total number of events: {num_events}')
 
     print('loading histories')
     histories_files = [file for file in os.listdir(f'{data_dir}random_histories/') if segment_arrayID+'.json' in file]
@@ -148,7 +176,11 @@ if __name__ == '__main__':
 
     #ebneuron.print()
 
+    # write spikes to file
+    print('writing results to file')
+    try: os.mkdir(f'{data_dir}nInputs_spikes')
+    except: pass
+
+    np.save(f'{data_dir}nInputs_spikes/spikes_{uniqueID}_{segment_arrayID}_{n}.npy', list(ebneuron_spikes))
+
     pool.close()
-
-
-
