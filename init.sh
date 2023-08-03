@@ -5,6 +5,9 @@
 # build data directories
 mkdir data
 mkdir data/morpho
+mkdir data/morpho/nInputs_spikes
+mkdir data/morpho/nInputs_stimuli
+mkdir data/morpho.reconstruct
 mkdir data/morpho/random_histories
 mkdir data/morpho/segment_arrays
 mkdir data/morpho/spiking_histories
