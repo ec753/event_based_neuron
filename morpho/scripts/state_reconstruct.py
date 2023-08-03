@@ -30,7 +30,7 @@ n = args.n #1
 
 
 histories_files = [file for file in os.listdir(f'{data_dir}random_histories/') if segment_arrayID+'.json' in file]
-print(f'histories: {len(histories_files)}')
+#=print(f'histories: {len(histories_files)}')
 
 origin_simulations = [Pyr.Pyr(vm_recording=True) for i in range(n)]
 reconstruct_simulations = [Pyr.Pyr(vm_recording=True) for i in range(n)]
@@ -64,11 +64,11 @@ for i in range(n):
     
     with open(f'{data_dir}random_histories/{histories_files[history_inds[1]]}') as fin:
         history_reconstruct = json.load(fin)
-
+    '''
     for seg in history_origin:
         print(history_origin[seg]['v'])
         print(history_reconstruct[seg]['v'])
-
+    '''
     origin_simulations[i].initialize_state_vars(history_origin)
     reconstruct_simulations[i].initialize_state_vars(history_reconstruct)
     fihs.append(h.FInitializeHandler(lambda: (lambda i:_initer(origin_simulations[i], history_origin))(i))) # .initialize_state_vars(history_origin)))
