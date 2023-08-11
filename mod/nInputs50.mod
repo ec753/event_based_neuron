@@ -329,7 +329,7 @@ NET_RECEIVE (w) {
             i0 = t
         }
         VERBATIM
-        double (*event_callback)(double, ...) = (double (*)(double, ...)) _p_on_event;
+        double (*event_callback)(double, ...) = (double (*)(double, ...)) &on_event;
         double time_to_spike = event_callback(last_spike,
 			e0,e1,e2,e3,e4,e5,e6,e7,e8,e9,e10,e11,e12,e13,e14,e15,e16,e17,e18,e19,e20,e21,e22,e23,e24,e25,e26,e27,e28,e29,e30,e31,e32,e33,e34,e35,e36,e37,e38,e39,e40,e41,e42,e43,e44,e45,e46,e47,e48,e49,
 			i0,i1,i2,i3,i4,i5,i6,i7,i8,i9,i10,i11,i12,i13,i14,i15,i16,i17,i18,i19,i20,i21,i22,i23,i24,i25,i26,i27,i28,i29,i30,i31,i32,i33,i34,i35,i36,i37,i38,i39,i40,i41,i42,i43,i44,i45,i46,i47,i48,i49);
