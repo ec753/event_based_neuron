@@ -79,4 +79,4 @@ h.continuerun(duration * ms)
 ##### SAVE RESULTS #####
 print('saving results')
 for seg_locID in seg_locIDs:
-    np.save('../../data/morpho/nInputs_groundtruth_sims/groundtruth_spikes_{seg_locID}_{uniqueID}.npy', list(cells[seg_locID].spike_times))
+    np.save(f'../../data/morpho/nInputs_groundtruth_sims/groundtruth_spikes_{seg_locID}_{uniqueID}.npy', list(cells[seg_locID].spike_times))

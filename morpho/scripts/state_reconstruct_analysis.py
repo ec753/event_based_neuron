@@ -71,4 +71,4 @@ for origin_file, reconstruct_file in reconstruct_pairs:
 vs_means_agg = np.array(list(vs_means.values()))
 vs_means_agg = np.mean(vs_means_agg, axis=0)
 
-np.save(f'{data_dir}vs_means_agg.npy')
+np.save(f'{data_dir}vs_means_agg.npy', vs_means_agg)
