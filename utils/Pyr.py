@@ -48,7 +48,7 @@ class Pyr:
 
     def run_simulation(self, duration):
         h.celsius = 35
-        h.finitialize(-65)
+        h.finitialize()
         h.continuerun(duration * ms)
 
     def all_state_vars(self):

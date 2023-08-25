@@ -8,6 +8,13 @@ h.load_file("stdrun.hoc")
 from neuron.units import mV, ms
 import time
 
+'''
+The partial histories scripts first generate stimuli patterns, then random cell histories (state variable frames) and 
+then run experiments simulating the combination of each of the stimuli patterns with each of the histories with each 
+value of n for n inputs. The results allow for the statistical analysis of response distributions given ambiguity in 
+initial conditions and differing quanta of input stimuli. 
+'''
+
 ########## HYPERPARAMETERS ##########
 data_dir = '../data/partial_history/'
 num_input_patterns_per_n = 1000
@@ -16,7 +23,7 @@ num_histories = 1000
 excitatory_interval = 5
 inhibitory_interval = 15
 
-ns = [n for n in range(31,51)]
+ns = [n for n in range(3,51)]
 stim_types = ['base','lw','lt','lwlt','burst']
 ########## STIMULI ##########
 print('generating stimuli')

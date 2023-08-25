@@ -27,6 +27,7 @@ n = args.n
 duration = args.duration
 outdir = args.outdir
 _id = stim_locs_file.split('_')[-1].split('.')[0]
+
 def save_history(pyr, outdir, i, _id):
     filepath = f'{outdir}history_{i}_{_id}.json'
     #print(f'spike! {i}, {h.t}, {_id}')

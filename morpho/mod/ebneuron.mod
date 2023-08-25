@@ -27,6 +27,7 @@ NET_RECEIVE (w) {
             printf("SPIKE - t:%g\n", t)
             net_event(t)
             last_spike = t
+            next_spike = t - 1  : impossible to have another spike without new input
         } else {
             printf("rewritten spike - t:%g\n", t)
         }
