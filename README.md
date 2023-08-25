@@ -34,11 +34,16 @@ Wang Buzsaki models. Figures visualized within `notebooks/partial_history.ipynb`
 
 The partial histories scripts first generate stimuli patterns, then random cell histories (state variable frames) and then run experiments simulating the combination of each of the stimuli patterns with each of the histories with each value of n for n inputs. The results allow for the statistical analysis of response distributions given ambiguity in initial conditions and differing quanta of input stimuli. 
 
-- **Figures 4**: data generated with `scripts/nst_distribution_evolution.py` and visualized within `nst_distribution_evolution_voltage_traces.ipynb`. Displays an example of how the membranve voltage traces and the distribution of NSTs of a HH model change as more history (input stimuli) is provided, given ambiguity in the initial conditions.
+- **Figures 4**: data generated with `scripts/nst_distribution_evolution.py` and visualized within `nst_distribution_evolution_voltage_traces.ipynb`.
 
-- **Figures 5**: data generated with `scripts/nst_distribution_evolution.py` and visualized within 
-`nst_distribution_evolution_part1.ipynb`, `nst_distribution_evolution_part2.ipynb`, and 
-`nst_distribution_evolution_part3.ipynb` in the notebooks directory.
+Displays an example of how the membranve voltage traces and the distribution of NSTs of a HH model change as more history (input stimuli) is provided, given ambiguity in the initial conditions.
+
+- **Figures 5**: data generated with `scripts/nst_distribution_evolution.py` and visualized within `nst_distribution_categorical_evolution.ipynb`, and 
+`nst_distribution_evolution_phase_diagram.ipynb` in the notebooks directory.
+
+`nst_distribution_categorical_evolution.ipynb` looks at the evolution of the NST distributions as n, the number of stimuli events known by the model, increases. The NST distributions are categorized into one of four categories describing whether the distribution of responses is deterministic or not, and whether it is spiking or not.
+
+`nst_distribution_evolution_phase_diagram.ipynb` categorizes the observed response (NST) distributions by whether they are deterministic or not and spiking or not. Then, builds phase diagrams describing how these transitions flow through these categories. Lastly, interogates the specific stimuli conditions (interval between stimuli and type of stimuli) that result in these conditions arising. 
 
 - **Figures 6 & 7**: data generated with `scripts/nInputs.py` for the Hodgkin Huxley model and `scripts/nInputs_WB.py` for 
 the Wang Buzsaki model, which utilize the wrappers `scripts/nInputs_wrapper.sh` and `scripts/nInputs_WB_wrapper.sh` 
