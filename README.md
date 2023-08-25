@@ -22,15 +22,21 @@ utilize code from the `./utils` directory.
 ## Paper Figures
 All figures of Cudone et al. 2023 can be reconstructed from the contents of this repository. 
 
-- **Figure 1**: Generated using `notebooks/model_specs.ipynb`.
+- **Figure 1**: Top and middle generated using `notebooks/model_specs.ipynb`; which lays out the parameterizations for the Hodgkin-Huxley (HH) and Wang-Buzsaki (WB) point cells for the event-based encodings manuscript. The Wang-Buzsaki is first described in https://doi.org/10.1523/jneurosci.16-20-06402.1996, and built using the implementation from the ModelDB entry 26997.
 
-- **Figure 2**: Generated using `notebooks/spike_centered.ipynb`.
+Bottom generated using `morpho/model_specs_morpho.ipynb`; with specifics of the the parameterization for the morphologically detailed CA1 pyramidal cell used in the event-based encodings manuscript. This models uses morphology originally from https://doi.org/10.1002/cne.903620103 and hosted on NeuroMorpho.org (https://doi.org/10.1523/jneurosci.2055-07.2007). The model is based off of Tom Morse's implementation: model 87284 on ModelDB. Our implementation recieves stimuli independently from 15 excitatory and 15 inhibitory synapses at random locations in the cell's dendrites. 
 
-- **Figure 3**: data generated with `partial_history_setup.py` and `partial_history.py` within the scripts folder for the 
-Hodgkin Huxley models, and `partial_history_WB_setup.py` and `partial_history_WB.py` within the scripts folder for the 
+- **Figure 2**: Generated using `notebooks/spike_centered.ipynb`; Inspired by on conversations with Dr. Robert McDougal and Dr. Ted Carnevale.
+
+- **Figure 3**: data generated with `partial_history.py` within the scripts folder for the 
+Hodgkin Huxley models, and `partial_history_WB.py` within the scripts folder for the 
 Wang Buzsaki models. Figures visualized within `notebooks/partial_history.ipynb`.
 
-- **Figures 4 & 5**: data generated with `scripts/nst_distribution_evolution.py` and visualized within 
+The partial histories scripts first generate stimuli patterns, then random cell histories (state variable frames) and then run experiments simulating the combination of each of the stimuli patterns with each of the histories with each value of n for n inputs. The results allow for the statistical analysis of response distributions given ambiguity in initial conditions and differing quanta of input stimuli. 
+
+- **Figures 4**: data generated with `scripts/nst_distribution_evolution.py` and visualized within `nst_distribution_evolution_voltage_traces.ipynb`. Displays an example of how the membranve voltage traces and the distribution of NSTs of a HH model change as more history (input stimuli) is provided, given ambiguity in the initial conditions.
+
+- **Figures 5**: data generated with `scripts/nst_distribution_evolution.py` and visualized within 
 `nst_distribution_evolution_part1.ipynb`, `nst_distribution_evolution_part2.ipynb`, and 
 `nst_distribution_evolution_part3.ipynb` in the notebooks directory.
 
