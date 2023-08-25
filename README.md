@@ -45,19 +45,21 @@ Displays an example of how the membranve voltage traces and the distribution of 
 
 `nst_distribution_evolution_phase_diagram.ipynb` categorizes the observed response (NST) distributions by whether they are deterministic or not and spiking or not. Then, builds phase diagrams describing how these transitions flow through these categories. Lastly, interogates the specific stimuli conditions (interval between stimuli and type of stimuli) that result in these conditions arising. 
 
-- **Figures 6 & 7**: data generated with `scripts/nInputs.py` for the Hodgkin Huxley model and `scripts/nInputs_WB.py` for 
-the Wang Buzsaki model, which utilize the wrappers `scripts/nInputs_wrapper.sh` and `scripts/nInputs_WB_wrapper.sh` 
-respectively. Visualization is in `notebooks/nInputs_analysis.ipynb`.
+- **Figures 6**: data generated with `scripts/nInputs.py` for the Hodgkin Huxley model and `scripts/nInputs_WB.py` for the Wang Buzsaki model, which utilize the wrappers `scripts/nInputs_wrapper.sh` and `scripts/nInputs_WB_wrapper.sh` respectively. These scripts run the n inputs experiments which simulates a neuron cell using the on-event framework introduced in Cudone et al. 2023. This requires the mod file `nInputs50.mod` in the `mod` folder to be compiled with NEURON.
 
-- **Figures 8 & 9**: data generated with `scripts/nInputs_morpho.py`, wrapped by `scripts/nInputs_morpho_wrapper.sh`, and 
-visualized in `notebooks/nInputs_analysis_morpho.ipynb`.
+Visualization is in `notebooks/nInputs_analysis.ipynb`, which shows the inter-spike-interval distributions the spike trains of the simulated event-based cells with varying values of n inputs, compared against the standard conductance-based model ISI distributions.
 
-- **Figure 10**: data generated with `state_reconstruct_part1.py`, `state_reconstruct_part2.py`, and 
-`state_reconstruct_part3.py` in the scripts directory. and visualized with `notebooks/state_reconstruction.ipynb`.
+- **Figures 7**: data generated with `scripts/nInputs.py` for the Hodgkin Huxley model and `scripts/nInputs_WB.py` for the Wang Buzsaki model, which utilize the wrappers `scripts/nInputs_wrapper.sh` and `scripts/nInputs_WB_wrapper.sh` respectively. These scripts run the n inputs experiments which simulates a neuron cell using the on-event framework introduced in Cudone et al. 2023. This requires the mod file `nInputs50.mod` in the `mod` folder to be compiled with NEURON.
 
-- **Figure 11**: TODO
+Visualization is in `notebooks/nInputs_analysis.ipynb`, which shows the victor purpura and van Rossum distances between the spike trains of the simulated event-based cells with varying values of n inputs, compared against the standard conductance-based model.
 
-- **Figure 12**: TODO
+- **Figures 8**: nInputs data generated with `morpho/scripts/nInputs.py`, batch ran using dSQ and the joblist `morpho/scripts/nInputs_dSQ_joblist.txt`, ground truth simulations of the conductance-based model simulated with `morpho/scripts/nInputs_groundtruth_sims.py`. Requires stimuli locations files to be generated beforehand using the `morpho/scripts/initialize_stimuli_locs.py` script.
+
+Visualized with `morpho/nInputs_analysis.ipynb` where raster plots of the ground truth conductance-based models are compared to the resulting spike trains of the n Inputs experiments, for the CA1 pyramidal cell. Additionally, van Rossum spike distances measured between the spike trains. 
+
+- **Figure 9**: data for figure 9A, the point cell analysis, is generated from `scripts/generate_spiking_histories.py` which generates a large sum of spiking histories, and `scripts/state_reconstruct.py` which runs the pairs of simulations with identical input events but variable initial conditions, and saves thier membrane voltages. The analysis and visualization are within `notebooks/state_reconstruction.ipynb`, which finds the difference, or error, between the observed membrane voltages, which is the result of the differences in the spiking histories used as initial condtions for the simulation pairs.
+
+  Data for 
 
 ## Repository contents
 
