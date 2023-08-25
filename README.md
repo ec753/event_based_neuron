@@ -24,7 +24,7 @@ All figures of Cudone et al. 2023 can be reconstructed from the contents of this
 
 - **Figure 1**: Top and middle generated using `notebooks/model_specs.ipynb`; which lays out the parameterizations for the Hodgkin-Huxley (HH) and Wang-Buzsaki (WB) point cells for the event-based encodings manuscript. The Wang-Buzsaki is first described in https://doi.org/10.1523/jneurosci.16-20-06402.1996, and built using the implementation from the ModelDB entry 26997.
 
-Bottom generated using `morpho/model_specs_morpho.ipynb`; with specifics of the the parameterization for the morphologically detailed CA1 pyramidal cell used in the event-based encodings manuscript. This models uses morphology originally from https://doi.org/10.1002/cne.903620103 and hosted on NeuroMorpho.org (https://doi.org/10.1523/jneurosci.2055-07.2007). The model is based off of Tom Morse's implementation: model 87284 on ModelDB. Our implementation recieves stimuli independently from 15 excitatory and 15 inhibitory synapses at random locations in the cell's dendrites. 
+  Bottom generated using `morpho/model_specs_morpho.ipynb`; with specifics of the the parameterization for the morphologically detailed CA1 pyramidal cell used in the event-based encodings manuscript. This models uses morphology originally from https://doi.org/10.1002/cne.903620103 and hosted on NeuroMorpho.org (https://doi.org/10.1523/jneurosci.2055-07.2007). The model is based off of Tom Morse's implementation: model 87284 on ModelDB. Our implementation recieves stimuli independently from 15 excitatory and 15 inhibitory synapses at random locations in the cell's dendrites. 
 
 - **Figure 2**: Generated using `notebooks/spike_centered.ipynb`; Inspired by on conversations with Dr. Robert McDougal and Dr. Ted Carnevale.
 
@@ -32,30 +32,30 @@ Bottom generated using `morpho/model_specs_morpho.ipynb`; with specifics of the 
 Hodgkin Huxley models, and `partial_history_WB.py` within the scripts folder for the 
 Wang Buzsaki models. Figures visualized within `notebooks/partial_history.ipynb`.
 
-The partial histories scripts first generate stimuli patterns, then random cell histories (state variable frames) and then run experiments simulating the combination of each of the stimuli patterns with each of the histories with each value of n for n inputs. The results allow for the statistical analysis of response distributions given ambiguity in initial conditions and differing quanta of input stimuli. 
+  The partial histories scripts first generate stimuli patterns, then random cell histories (state variable frames) and then run experiments simulating the combination of each of the stimuli patterns with each of the histories with each value of n for n inputs. The results allow for the statistical analysis of response distributions given ambiguity in initial conditions and differing quanta of input stimuli. 
 
 - **Figures 4**: data generated with `scripts/nst_distribution_evolution.py` and visualized within `nst_distribution_evolution_voltage_traces.ipynb`.
 
-Displays an example of how the membranve voltage traces and the distribution of NSTs of a HH model change as more history (input stimuli) is provided, given ambiguity in the initial conditions.
+  Displays an example of how the membranve voltage traces and the distribution of NSTs of a HH model change as more history (input stimuli) is provided, given ambiguity in the initial conditions.
 
 - **Figures 5**: data generated with `scripts/nst_distribution_evolution.py` and visualized within `nst_distribution_categorical_evolution.ipynb`, and 
 `nst_distribution_evolution_phase_diagram.ipynb` in the notebooks directory.
 
-`nst_distribution_categorical_evolution.ipynb` looks at the evolution of the NST distributions as n, the number of stimuli events known by the model, increases. The NST distributions are categorized into one of four categories describing whether the distribution of responses is deterministic or not, and whether it is spiking or not.
+  `nst_distribution_categorical_evolution.ipynb` looks at the evolution of the NST distributions as n, the number of stimuli events known by the model, increases. The NST distributions are categorized into one of four categories describing whether the distribution of responses is deterministic or not, and whether it is spiking or not.
 
-`nst_distribution_evolution_phase_diagram.ipynb` categorizes the observed response (NST) distributions by whether they are deterministic or not and spiking or not. Then, builds phase diagrams describing how these transitions flow through these categories. Lastly, interogates the specific stimuli conditions (interval between stimuli and type of stimuli) that result in these conditions arising. 
+  `nst_distribution_evolution_phase_diagram.ipynb` categorizes the observed response (NST) distributions by whether they are deterministic or not and spiking or not. Then, builds phase diagrams describing how these transitions flow through these categories. Lastly, interogates the specific stimuli conditions (interval between stimuli and type of stimuli) that result in these conditions arising. 
 
 - **Figures 6**: data generated with `scripts/nInputs.py` for the Hodgkin Huxley model and `scripts/nInputs_WB.py` for the Wang Buzsaki model, which utilize the wrappers `scripts/nInputs_wrapper.sh` and `scripts/nInputs_WB_wrapper.sh` respectively. These scripts run the n inputs experiments which simulates a neuron cell using the on-event framework introduced in Cudone et al. 2023. This requires the mod file `nInputs50.mod` in the `mod` folder to be compiled with NEURON.
 
-Visualization is in `notebooks/nInputs_analysis.ipynb`, which shows the inter-spike-interval distributions the spike trains of the simulated event-based cells with varying values of n inputs, compared against the standard conductance-based model ISI distributions.
+  Visualization is in `notebooks/nInputs_analysis.ipynb`, which shows the inter-spike-interval distributions the spike trains of the simulated event-based cells with varying values of n inputs, compared against the standard conductance-based model ISI distributions.
 
 - **Figures 7**: data generated with `scripts/nInputs.py` for the Hodgkin Huxley model and `scripts/nInputs_WB.py` for the Wang Buzsaki model, which utilize the wrappers `scripts/nInputs_wrapper.sh` and `scripts/nInputs_WB_wrapper.sh` respectively. These scripts run the n inputs experiments which simulates a neuron cell using the on-event framework introduced in Cudone et al. 2023. This requires the mod file `nInputs50.mod` in the `mod` folder to be compiled with NEURON.
 
-Visualization is in `notebooks/nInputs_analysis.ipynb`, which shows the victor purpura and van Rossum distances between the spike trains of the simulated event-based cells with varying values of n inputs, compared against the standard conductance-based model.
+  Visualization is in `notebooks/nInputs_analysis.ipynb`, which shows the victor purpura and van Rossum distances between the spike trains of the simulated event-based cells with varying values of n inputs, compared against the standard conductance-based model.
 
 - **Figures 8**: nInputs data generated with `morpho/scripts/nInputs.py`, batch ran using dSQ and the joblist `morpho/scripts/nInputs_dSQ_joblist.txt`, ground truth simulations of the conductance-based model simulated with `morpho/scripts/nInputs_groundtruth_sims.py`. Requires stimuli locations files to be generated beforehand using the `morpho/scripts/initialize_stimuli_locs.py` script.
 
-Visualized with `morpho/nInputs_analysis.ipynb` where raster plots of the ground truth conductance-based models are compared to the resulting spike trains of the n Inputs experiments, for the CA1 pyramidal cell. Additionally, van Rossum spike distances measured between the spike trains. 
+  Visualized with `morpho/nInputs_analysis.ipynb` where raster plots of the ground truth conductance-based models are compared to the resulting spike trains of the n Inputs experiments, for the CA1 pyramidal cell. Additionally, van Rossum spike distances measured between the spike trains. 
 
 - **Figure 9**: data for figure 9A, the point cell analysis, is generated from `scripts/generate_spiking_histories.py` which generates a large sum of spiking histories, and `scripts/state_reconstruct.py` which runs the pairs of simulations with identical input events but variable initial conditions, and saves thier membrane voltages. The analysis and visualization are within `notebooks/state_reconstruction.ipynb`, which finds the difference, or error, between the observed membrane voltages, which is the result of the differences in the spiking histories used as initial condtions for the simulation pairs.
 
