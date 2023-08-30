@@ -59,7 +59,7 @@ Wang Buzsaki models. Figures visualized within `notebooks/partial_history.ipynb`
 
 - **Figure 9**: data for figure 9A, the point cell analysis, is generated from `scripts/generate_spiking_histories.py` which generates a large sum of spiking histories, and `scripts/state_reconstruct.py` which runs the pairs of simulations with identical input events but variable initial conditions, and saves thier membrane voltages. The analysis and visualization are within `notebooks/state_reconstruction.ipynb`, which finds the difference, or error, between the observed membrane voltages, which is the result of the differences in the spiking histories used as initial condtions for the simulation pairs.
 
-  Data for figure 9B, 9B.1 and 9B.2, the morphologically detailed cell analysis, is generated from `morpho/scripts/nInputs.py' and the ground truth simulation data compared to is generated with `morpho/scripts/nInputs_groundtruth_sims.py`. The results were run on a cluster using dSQ job query in the `morpho/scripts/nInputs_dSQ_joblist.py`. The visualization is within `morpho/nInputs_analysis.ipynb`. 
+  Data for figure 9B, 9B.1 and 9B.2, the morphologically detailed cell analysis, is generated from `morpho/scripts/nInputs.py` and the ground truth simulation data compared to is generated with `morpho/scripts/nInputs_groundtruth_sims.py`. The results were run on a cluster using dSQ job query in the `morpho/scripts/nInputs_dSQ_joblist.py`. The visualization is within `morpho/nInputs_analysis.ipynb`. 
 
 ## Repository contents
 
